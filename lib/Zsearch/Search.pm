@@ -16,54 +16,37 @@ sub csv {
     my ( $self, $cond ) = @_;
     my $path = $cond->{path};
     my $csv  = Text::CSV->new();
-    open my $fh, "<:encoding(utf8)", $path or die "test.csv: $!";
+    my $fh   = IO::File->new( $path, "<:encoding(utf8)" );
+    die "not file: $!" if !$fh;
     my @rows;
     while ( my $row = $csv->getline($fh) ) {
         if ( my $params = $self->cond->refined_search( $cond, $row ) ) {
             push @rows, $params;
         }
     }
-    close $fh;
+    $fh->close;
     return \@rows;
-}
-
-sub _index_path { return "$FindBin::RealBin/../tmp/index.json"; }
-
-# インデックスを取得
-sub _get_index {
-    my ($self)     = @_;
-    my $index_path = $self->_index_path;
-    my $fh_index   = IO::File->new("< $index_path");
-    die "not file: $!" if !$fh_index;
-    my $line = decode( 'UTF-8', $fh_index->getline );
-    $fh_index->close;
-    return decode_json $line;
 }
 
 sub json {
     my ( $self, $cond ) = @_;
-    warn 'json------';
 
     # code 指定がない場合はcsv検索へ
     my $code = $cond->{code};
-    if ($code) {
-        warn 'if------';
-
-        my $index_hash = $self->_get_index;
-        warn Dumper $index_hash;
+    if ( $code ne '' ) {
+        my $index_hash  = $self->get_json( $self->index_path );
         my $first       = substr( $code, 0, 1 );
         my $search_path = $index_hash->{code}->{$first};
-        # warn $search_path;
-
-        my $fh_json = IO::File->new("< $search_path");
-        die "not file: $!" if !$fh_json;
-        my $line = decode( 'UTF-8', $fh_json->getline );
-        # warn $line;
-        $fh_json->close;
-        my $data = decode_json $line;
-
-        warn Dumper decode_json $line;
-        return;
+        my $data_ref    = $self->get_json($search_path);
+        my @rows;
+        for my $data ( @{$data_ref} ) {
+            if ( my $params =
+                $self->cond->refined_search( $cond, $data, 'json' ) )
+            {
+                push @rows, $params;
+            }
+        }
+        return \@rows;
     }
     return $self->csv($cond);
 }
