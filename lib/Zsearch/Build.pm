@@ -4,11 +4,9 @@ use strict;
 use warnings;
 use utf8;
 use FindBin;
-# use JSON::PP;
 use File::Path 'mkpath';
 use Zsearch::Search;
 use Data::Dumper;
-# use Encode qw(encode decode);
 
 sub search { return Zsearch::Search->new; }
 
@@ -21,7 +19,6 @@ sub _zipcode {
     my $total   = @numbers;
     print "start!! build zipcode\n";
     for my $number (@numbers) {
-        # next if $number ne 1;
         print "Working $number/$total\n";
 
         # 保存するファイル名を決定

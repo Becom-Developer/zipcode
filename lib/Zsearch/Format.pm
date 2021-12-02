@@ -5,7 +5,8 @@ use warnings;
 use utf8;
 
 sub zipcode {
-    my ( $self, $row ) = @_;
+    my ( $self, $row, $type ) = @_;
+    return $row if ( $type && ( $type eq 'json' ) );
     return +{
         local_code         => $row->[0],
         zipcode_old        => $row->[1],

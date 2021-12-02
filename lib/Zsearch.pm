@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use utf8;
 use FindBin;
-use Encode qw(encode decode);
 use JSON::PP;
 
 sub new { return bless {}, shift; }

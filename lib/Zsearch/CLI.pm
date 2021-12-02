@@ -9,7 +9,6 @@ use utf8;
 use Encode qw(encode decode);
 use Data::Dumper;
 use Getopt::Long;
-use Text::CSV;
 
 sub hello  { print "hello CLI-----\n"; }
 sub search { return Zsearch::Search->new; }

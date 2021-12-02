@@ -6,9 +6,6 @@ use warnings;
 use utf8;
 use Data::Dumper;
 use Text::CSV;
-use Encode qw(encode decode);
-use JSON::PP;
-use FindBin;
 
 sub cond { return Zsearch::Cond->new; }
 
