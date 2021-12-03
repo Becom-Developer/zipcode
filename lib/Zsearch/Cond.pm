@@ -98,3 +98,62 @@ sub refined_search {
 }
 
 1;
+
+__END__
+
+条件まとめ
+code, pref, city, town
+code, pref, city
+code, pref,       town
+code,       city, town
+      pref, city, town
+            city, town
+      pref,       town
+      pref, city
+code,             town
+code,       city
+code, pref
+code,
+      pref
+            city
+                  town
+
+code 必須
+code, pref, city, town
+code, pref, city
+code, pref,       town
+code,       city, town
+code, pref
+code,       city
+code,             town
+code,
+
+pref 必須
+code, pref, city, town
+      pref, city, town
+code, pref,       town
+code, pref, city,
+      pref,       town
+code, pref
+      pref, city
+      pref
+
+city 必須
+code, pref, city, town
+      pref, city, town
+code,       city, town
+code, pref, city
+            city, town
+code,       city
+      pref, city
+            city
+
+town 必須
+code, pref, city, town
+      pref, city, town
+code,       city, town
+code, pref,       town
+            city, town
+code,             town
+      pref,       town
+                  town

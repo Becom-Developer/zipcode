@@ -77,3 +77,18 @@ sub run {
 1;
 
 __END__
+
+検索用の json 形式ファイルの目次を作成
+./tmp/index.json
+index = {
+    code: {
+        0: './tmp/0.json',
+        1: './tmp/1.json',
+        ...
+    },
+    pref: {
+        codepoint: './tmp/codepoint.json',
+    },
+    city: {},
+    town: {},
+}
