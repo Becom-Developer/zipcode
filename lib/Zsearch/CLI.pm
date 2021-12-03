@@ -17,9 +17,9 @@ sub build  { return Zsearch::Build->new; }
 
 # オプションの設定
 my ( $code, $pref, $city, $town ) = '';
-my $path = './csv/40FUKUOK.CSV';
+my $path = Zsearch::csv_all_path();
 my $type = 'standard';
-my $mode = 'search';
+my $mode = 'auto';
 GetOptions(
     "code=i" => \$code,
     "pref=s" => \$pref,
@@ -41,10 +41,7 @@ sub run {
     my ( $self, @args ) = @_;
 
     # 検索用インデックスの作成
-    if ( $mode eq 'build' ) {
-        $self->build->run;
-        return;
-    }
+    return $self->build->run if $mode eq 'build';
 
     # csv データから条件検索して結果を取得
     my $cond = +{
@@ -53,6 +50,7 @@ sub run {
         city => $city,
         town => $town,
         path => $path,
+        mode => $mode,
     };
     my $rows = $self->search->json($cond);
 
@@ -62,3 +60,28 @@ sub run {
 }
 
 1;
+
+__END__
+
+郵便番号および住所の前方一致絞り込み検索アプリ
+
+検索用インデックスの作成
+zsearch --mode=build
+
+郵便番号検索
+zsearch --mode=auto --code=812
+
+省略した指定
+zsearch --code=812
+
+json 形式で出力
+zsearch --type=json --code=812
+
+項目による絞り込み検索
+zsearch --code=812 --pref=福岡 --city=福岡 --town=吉
+
+csv ファイルによる絞り込み検索
+zsearch --mode=csv --code=812 --pref=福岡 --city=福岡 --town=吉
+
+csv ファイルによる絞り込み検索
+zsearch --mode=csv --code=812 --pref=福岡 --city=福岡 --town=吉

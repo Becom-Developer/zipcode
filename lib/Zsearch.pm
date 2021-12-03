@@ -10,6 +10,9 @@ sub new { return bless {}, shift; }
 # インデックスのファイル
 sub index_path { return "$FindBin::RealBin/../tmp/index.json"; }
 
+# csv 全国版ファイル
+sub csv_all_path { return "$FindBin::RealBin/../csv/KEN_ALL.CSV"; }
+
 # json 形式でファイル保存
 sub save_json {
     my ( $self, $file_path, $data_ref ) = @_;
@@ -32,3 +35,5 @@ sub get_json {
 }
 
 1;
+
+__END__

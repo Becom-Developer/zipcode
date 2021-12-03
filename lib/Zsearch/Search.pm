@@ -28,6 +28,12 @@ sub csv {
 sub json {
     my ( $self, $cond ) = @_;
 
+    # build が実行されていない場合は csv 検索へ
+    return $self->csv($cond) if !-e $self->index_path;
+
+    # 指定による csv 検索実行
+    return $self->csv($cond) if $cond->{mode} eq 'csv';
+
     # code 指定がない場合はcsv検索へ
     my $code = $cond->{code};
     if ( $code ne '' ) {
