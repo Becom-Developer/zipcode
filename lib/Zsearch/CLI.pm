@@ -21,7 +21,7 @@ my $path = Zsearch::csv_all_path();
 my $type = 'standard';
 my $mode = 'auto';
 GetOptions(
-    "code=i" => \$code,
+    "code=s" => \$code,
     "pref=s" => \$pref,
     "city=s" => \$city,
     "town=s" => \$town,

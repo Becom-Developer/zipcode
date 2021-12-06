@@ -6,6 +6,7 @@ use warnings;
 use utf8;
 use Data::Dumper;
 use Text::CSV;
+use FindBin;
 
 sub cond { return Zsearch::Cond->new; }
 
@@ -51,7 +52,34 @@ sub json {
         }
         return \@rows;
     }
-    return $self->csv($cond);
+
+    # 全ての json ファイルを連続で検索してみる
+    return $self->_all_json_file($cond);
+
+    # return $self->csv($cond);
+}
+
+# 全ての json ファイルを連続で検索
+sub _all_json_file {
+    my ( $self, $cond ) = @_;
+    my @file_number = ( 0 .. 9 );
+    my $count       = @file_number;
+    my @rows;
+    for my $number (@file_number) {
+        print STDERR $count;
+        print STDERR '->';
+        $count -= 1;
+        my $file_path = "$FindBin::RealBin/../tmp/$number.json";
+        my $data_ref  = $self->get_json($file_path);
+        for my $data ( @{$data_ref} ) {
+            if ( my $params =
+                $self->cond->refined_search( $cond, $data, 'json' ) )
+            {
+                push @rows, $params;
+            }
+        }
+    }
+    return \@rows;
 }
 
 1;

@@ -71,6 +71,8 @@ sub run {
     # 以下の住所
     # $self->index_town;
 
+    # 100分割ファイル
+
     return;
 }
 
@@ -87,8 +89,22 @@ index = {
         ...
     },
     pref: {
-        codepoint: './tmp/codepoint.json',
+        codepoint: [0, 3, 6],
     },
     city: {},
     town: {},
 }
+
+index = {
+    path: {
+        00: './tmp/00.json',
+        01: './tmp/01.json',
+        ...
+        99: './tmp/99.json',
+    },
+    q: [
+        {code: 0, pref: '', city: '', town: '', path: [00, 01, 02, ... ]}
+    ],
+}
+
+
