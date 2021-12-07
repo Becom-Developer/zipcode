@@ -28,10 +28,10 @@ sub _zipcode {
         # インデックスの登録状況確認
         if ( !exists $index_hash->{code}->{$number} ) {
             my $cond = +{
-                code => $number,
-                pref => undef,
-                city => undef,
-                town => undef,
+                code => "$number",
+                pref => '',
+                city => '',
+                town => '',
                 path => $self->_ken_all_path,
             };
             my $rows = $self->search->csv($cond);
@@ -46,58 +46,23 @@ sub _zipcode {
 }
 
 sub _100_divisions {
-    warn '_100_divisions-----1';
-    my ($self)  = @_;
+    my ($self) = @_;
     my @numbers = ( 0 .. 99 );
-
-    for my $num (@numbers){
-        # warn $num;
-        my $str = sprintf("%02d", $num);
-        warn $str;
+    for my $num (@numbers) {
+        my $str = sprintf( "%02d", $num );
 
         # 保存するファイル名を決定
-        my $file_path  = "$FindBin::RealBin/../tmp/100/$str.json";
-        warn $file_path;
-
-            my $cond = +{
-                code => $str,
-                pref => undef,
-                city => undef,
-                town => undef,
-                path => $self->_ken_all_path,
-            };
-            my $rows = $self->search->csv($cond);
-            $self->save_json( $file_path, $rows );
-
+        my $file_path = "$FindBin::RealBin/../tmp/100/$str.json";
+        my $cond      = +{
+            code => $str,
+            pref => '',
+            city => '',
+            town => '',
+            path => $self->_ken_all_path,
+        };
+        my $rows = $self->search->csv($cond);
+        $self->save_json( $file_path, $rows );
     }
-
-
-    # my $total   = @numbers;
-    # print "start!! build zipcode\n";
-    # for my $number (@numbers) {
-    #     print "Working $number/$total\n";
-
-    #     # 保存するファイル名を決定
-    #     my $file_path  = "$FindBin::RealBin/../tmp/$number.json";
-    #     my $index_hash = $self->get_json( $self->index_path );
-
-    #     # インデックスの登録状況確認
-    #     if ( !exists $index_hash->{code}->{$number} ) {
-    #         my $cond = +{
-    #             code => $number,
-    #             pref => undef,
-    #             city => undef,
-    #             town => undef,
-    #             path => $self->_ken_all_path,
-    #         };
-    #         my $rows = $self->search->csv($cond);
-    #         $self->save_json( $file_path, $rows );
-
-    #         # インデックス登録
-    #         $index_hash->{code}->{$number} = $file_path;
-    #         $self->save_json( $self->index_path, $index_hash );
-    #     }
-    # }
     return;
 }
 
@@ -128,7 +93,7 @@ sub run {
     # $self->index_town;
 
     # 100分割ファイル
-    $self->_100_divisions;
+    # $self->_100_divisions;
     return;
 }
 
