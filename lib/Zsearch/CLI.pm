@@ -16,7 +16,7 @@ sub render { return Zsearch::Render->new; }
 sub build  { return Zsearch::Build->new; }
 
 # オプションの設定
-my ( $code, $pref, $city, $town ) = '';
+my ( $code, $pref, $city, $town ) = ('','','','');
 my $path = Zsearch::csv_all_path();
 my $type = 'standard';
 my $mode = 'auto';

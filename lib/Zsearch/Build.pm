@@ -94,6 +94,27 @@ sub run {
 
     # 100分割ファイル
     # $self->_100_divisions;
+
+    # index ファイル path 一覧
+    $self->_path_list;
+    return;
+}
+
+sub _path_list {
+    my ($self) = @_;
+    my $index_hash = $self->get_json( $self->index_path );
+    my $path    = +{};
+    my @numbers = ( 0 .. 99 );
+    for my $num (@numbers) {
+        my $str       = sprintf( "%02d", $num );
+        my $file_path = "$FindBin::RealBin/../tmp/100/$str.json";
+        $path->{$str} = $file_path;
+    }
+
+    # インデックス登録
+    $index_hash->{path} = $path;
+    $index_hash->{q} = [];
+    $self->save_json( $self->index_path, $index_hash );
     return;
 }
 
