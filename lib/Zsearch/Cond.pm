@@ -6,107 +6,113 @@ use warnings;
 use utf8;
 sub format { return Zsearch::Format->new; }
 
+# 0 文字は検索対象にしたい
+sub _has_value {
+    my ( $self, $val ) = @_;
+    return 0 if !defined $val;
+    return 0 if $val eq '';
+    return 1;
+}
+
+# 検索対象のデータ項目が変わることがある
+sub _target_val {
+    my ( $self, $type, $row ) = @_;
+    my $r = +{};
+    if ( $type && ( $type eq 'json' ) ) {
+        $r->{code} = $row->{zipcode};
+        $r->{pref} = $row->{pref};
+        $r->{city} = $row->{city};
+        $r->{town} = $row->{town};
+        return $r;
+    }
+    $r->{code} = $row->[2];
+    $r->{pref} = $row->[6];
+    $r->{city} = $row->[7];
+    $r->{town} = $row->[8];
+    return $r;
+}
+
 sub refined_search {
     my ( $self, $cond, $row, $type ) = @_;
-    my $code = $cond->{code};
-    my $pref = $cond->{pref};
-    my $city = $cond->{city};
-    my $town = $cond->{town};
-    my ( $has_code, $has_pref, $has_city, $has_town ) = 0;
-    if ( ( $code ne '' ) && ( defined $code ) ) {
-        $has_code = 1;
-    }
-    if ( ( $pref ne '' ) && ( defined $pref ) ) {
-        $has_pref = 1;
-    }
-    if ( ( $city ne '' ) && ( defined $city ) ) {
-        $has_city = 1;
-    }
-    if ( ( $town ne '' ) && ( defined $town ) ) {
-        $has_town = 1;
-    }
-    my ( $r_code, $r_pref, $r_city, $r_town );
-    if ( $type && ( $type eq 'json' ) ) {
-        $r_code = $row->{zipcode};
-        $r_pref = $row->{pref};
-        $r_city = $row->{city};
-        $r_town = $row->{town};
-    }
-    else {
-        $r_code = $row->[2];
-        $r_pref = $row->[6];
-        $r_city = $row->[7];
-        $r_town = $row->[8];
-    }
+    my $code     = $cond->{code};
+    my $pref     = $cond->{pref};
+    my $city     = $cond->{city};
+    my $town     = $cond->{town};
+    my $has_code = $self->_has_value($code);
+    my $has_pref = $self->_has_value($pref);
+    my $has_city = $self->_has_value($city);
+    my $has_town = $self->_has_value($town);
+    my $r        = $self->_target_val( $type, $row );
+
     if ( $has_code && $has_pref && $has_city && $has_town ) {
-        return if $r_code !~ /^$code/;
-        return if $r_pref !~ /^$pref/;
-        return if $r_city !~ /^$city/;
-        return if $r_town !~ /^$town/;
+        return if $r->{code} !~ /^$code/;
+        return if $r->{pref} !~ /^$pref/;
+        return if $r->{city} !~ /^$city/;
+        return if $r->{town} !~ /^$town/;
         return $self->format->zipcode( $row, $type );
     }
     if ( $has_code && $has_pref && $has_city ) {
-        return if $r_code !~ /^$code/;
-        return if $r_pref !~ /^$pref/;
-        return if $r_city !~ /^$city/;
+        return if $r->{code} !~ /^$code/;
+        return if $r->{pref} !~ /^$pref/;
+        return if $r->{city} !~ /^$city/;
         return $self->format->zipcode( $row, $type );
     }
     if ( $has_code && $has_pref && $has_town ) {
-        return if $r_code !~ /^$code/;
-        return if $r_pref !~ /^$pref/;
-        return if $r_town !~ /^$town/;
+        return if $r->{code} !~ /^$code/;
+        return if $r->{pref} !~ /^$pref/;
+        return if $r->{town} !~ /^$town/;
         return $self->format->zipcode( $row, $type );
     }
     if ( $has_code && $has_city && $has_town ) {
-        return if $r_code !~ /^$code/;
-        return if $r_city !~ /^$city/;
-        return if $r_town !~ /^$town/;
+        return if $r->{code} !~ /^$code/;
+        return if $r->{city} !~ /^$city/;
+        return if $r->{town} !~ /^$town/;
         return $self->format->zipcode( $row, $type );
     }
     if ( $has_pref && $has_city && $has_town ) {
-        return if $r_pref !~ /^$pref/;
-        return if $r_city !~ /^$city/;
-        return if $r_town !~ /^$town/;
+        return if $r->{pref} !~ /^$pref/;
+        return if $r->{city} !~ /^$city/;
+        return if $r->{town} !~ /^$town/;
         return $self->format->zipcode( $row, $type );
     }
     if ( $has_city && $has_town ) {
-        return if $r_city !~ /^$city/;
-        return if $r_town !~ /^$town/;
+        return if $r->{city} !~ /^$city/;
+        return if $r->{town} !~ /^$town/;
         return $self->format->zipcode( $row, $type );
     }
     if ( $has_pref && $has_town ) {
-        return if $r_pref !~ /^$pref/;
-        return if $r_town !~ /^$town/;
+        return if $r->{pref} !~ /^$pref/;
+        return if $r->{town} !~ /^$town/;
         return $self->format->zipcode( $row, $type );
     }
     if ( $has_pref && $has_city ) {
-        return if $r_pref !~ /^$pref/;
-        return if $r_city !~ /^$city/;
+        return if $r->{pref} !~ /^$pref/;
+        return if $r->{city} !~ /^$city/;
         return $self->format->zipcode( $row, $type );
     }
     if ( $has_code && $has_town ) {
-        return if $r_code !~ /^$code/;
-        return if $r_town !~ /^$town/;
+        return if $r->{code} !~ /^$code/;
+        return if $r->{town} !~ /^$town/;
         return $self->format->zipcode( $row, $type );
     }
     if ( $has_code && $has_city ) {
-        return if $r_code !~ /^$code/;
-        return if $r_city !~ /^$city/;
+        return if $r->{code} !~ /^$code/;
+        return if $r->{city} !~ /^$city/;
         return $self->format->zipcode( $row, $type );
     }
     if ( $has_code && $has_pref ) {
-        return if $r_code !~ /^$code/;
-        return if $r_pref !~ /^$pref/;
+        return if $r->{code} !~ /^$code/;
+        return if $r->{pref} !~ /^$pref/;
         return $self->format->zipcode( $row, $type );
     }
     return $self->format->zipcode( $row, $type )
-      if $has_code && ( $r_code =~ /^$code/ );
+      if $has_code && ( $r->{code} =~ /^$code/ );
     return $self->format->zipcode( $row, $type )
-      if $has_pref && ( $r_pref =~ /^$pref/ );
+      if $has_pref && ( $r->{pref} =~ /^$pref/ );
     return $self->format->zipcode( $row, $type )
-      if $has_city && ( $r_city =~ /^$city/ );
+      if $has_city && ( $r->{city} =~ /^$city/ );
     return $self->format->zipcode( $row, $type )
-      if $has_town && ( $r_town =~ /^$town/ );
+      if $has_town && ( $r->{town} =~ /^$town/ );
     return;
 }
 
