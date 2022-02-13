@@ -15,14 +15,15 @@ subtest 'Class and Method' => sub {
     can_ok( new_ok('Zsearch'), (@methods) );
     can_ok( new_ok('Zsearch::CLI2'), (@methods) );
     can_ok( new_ok('Zsearch::Error'), ( qw{output  commit}, @methods ) );
+    can_ok( new_ok('Zsearch::Build'), (@methods) );
 };
 
 subtest 'CLI2' => sub {
     my $cli = new_ok('Zsearch::CLI2');
     trap { $cli->run() };
     like( $trap->stdout, qr/error/, $trap->stdout );
-    # trap { $cli->run( '--path=build', '--method=init' ) };
-    # like( $trap->stdout, qr/success/, $trap->stdout );
+    trap { $cli->run( '--path=build', '--method=init' ) };
+    like( $trap->stdout, qr/success/, $trap->stdout );
 };
 
 done_testing;

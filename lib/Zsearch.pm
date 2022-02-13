@@ -5,9 +5,19 @@ use utf8;
 use FindBin;
 use JSON::PP;
 use Zsearch::Error;
+use Zsearch::Build;
 
 sub new   { return bless {}, shift; }
 sub error { Zsearch::Error->new; }
+sub build { Zsearch::Build->new; }
+
+sub db_file {
+    my $db_file = 'zsearch.db';
+    if ( $ENV{"ZSEARCH_MODE"} && ( $ENV{"ZSEARCH_MODE"} eq 'test' ) ) {
+        $db_file = 'zsearch-test.db';
+    }
+    return $db_file;
+}
 
 # インデックスのファイル
 sub index_path { return "$FindBin::RealBin/../tmp/index.json"; }
