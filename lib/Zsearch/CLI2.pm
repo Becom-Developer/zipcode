@@ -24,9 +24,10 @@ sub run {
         method => decode( 'UTF-8', $method ),
         params => decode_json $params,
     };
+
     # 初期設定 / データベース設定更新 build
     if ( $options->{path} eq 'build' ) {
-        print encode_json $self->build->run2($options);
+        print encode_json( $self->build->run2($options) );
         print "\n";
         return;
     }

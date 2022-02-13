@@ -1,12 +1,13 @@
 package Zsearch::Build;
-use parent 'Zsearch';
 use strict;
 use warnings;
 use utf8;
 use FindBin;
+use parent 'Zsearch';
 use File::Path qw(make_path remove_tree);
 use Zsearch::Search;
 use Data::Dumper;
+use Text::CSV;
 
 sub run2 {
     my ( $self, @args ) = @_;
@@ -14,7 +15,8 @@ sub run2 {
     return $self->error->commit("No arguments") if !$options;
 
     # 初期設定時のdbファイル準備
-    return $self->_init() if $options->{method} eq 'init';
+    return $self->_init()   if $options->{method} eq 'init';
+    return $self->_insert() if $options->{method} eq 'insert';
     return $self->error->commit(
         "Method not specified correctly: $options->{method}");
 }
@@ -34,6 +36,49 @@ sub _init {
     my $cmd = "sqlite3 $db < $sql";
     system $cmd and die "Couldn'n run: $cmd ($!)";
     return +{ message => qq{build success $db_file} };
+}
+
+sub _insert {
+    my ( $self, @args ) = @_;
+    # my $path = $self->csv_fukuoka_path();
+    my $path = $self->csv_all_path();
+    my $dt   = $self->time_stamp;
+    my $csv  = Text::CSV->new();
+    my $fh   = IO::File->new( $path, "<:encoding(utf8)" );
+    die "not file: $!" if !$fh;
+
+    my $dbh  = $self->build_dbh;
+    my $cols = [
+        'local_code',    'zipcode_old',
+        'zipcode',       'pref_kana',
+        'city_kana',     'town_kana',
+        'pref',          'city',
+        'town',          'double_zipcode',
+        'town_display',  'city_block_display',
+        'double_town',   'update_zipcode',
+        'update_reason', 'deleted',
+        'created_ts',    'modified_ts',
+    ];
+    my $col = join( ',', @{$cols} );
+    my $q   = [];
+
+    for my $int ( @{$cols} ) {
+        push( @{$q}, '?' );
+    }
+    my $values = join( ',', @{$q} );
+    my $sql    = qq{INSERT INTO post ($col) VALUES ($values)};
+    while ( my $row = $csv->getline($fh) ) {
+        my @data = (
+            $row->[0],  $row->[1],  $row->[2],  $row->[3],  $row->[4],
+            $row->[5],  $row->[6],  $row->[7],  $row->[8],  $row->[9],
+            $row->[10], $row->[11], $row->[12], $row->[13], $row->[14],
+            0,          $dt,        $dt
+        );
+        my $sth = $dbh->prepare($sql);
+        $sth->execute(@data) or die $dbh->errstr;
+    }
+    $fh->close;
+    return +{ message => qq{insert success $path} };
 }
 
 sub search { return Zsearch::Search->new; }
@@ -95,6 +140,7 @@ sub _100_divisions {
 }
 
 sub run {
+    print "run--------\n";
     my ($self) = @_;
     my $tmp_path = "$FindBin::RealBin/../tmp/100/";
     if ( !-d $tmp_path ) {

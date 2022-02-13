@@ -6,10 +6,14 @@ use FindBin;
 use JSON::PP;
 use Zsearch::Error;
 use Zsearch::Build;
-
-sub new   { return bless {}, shift; }
-sub error { Zsearch::Error->new; }
-sub build { Zsearch::Build->new; }
+use File::Spec;
+use DBI;
+use Time::Piece;
+use Data::Dumper;
+sub new        { return bless {}, shift; }
+sub error      { Zsearch::Error->new; }
+sub build      { Zsearch::Build->new; }
+sub time_stamp { return localtime->datetime( 'T' => ' ' ); }
 
 sub db_file {
     my $db_file = 'zsearch.db';
@@ -19,11 +23,27 @@ sub db_file {
     return $db_file;
 }
 
+sub build_dbh {
+    my ( $self, @args ) = @_;
+    my $db_file = $self->db_file;
+    my $db   = File::Spec->catfile( "$FindBin::RealBin", '..', 'db', $db_file );
+    my $attr = +{
+        RaiseError     => 1,
+        AutoCommit     => 1,
+        sqlite_unicode => 1,
+    };
+    my $dbh = DBI->connect( "dbi:SQLite:dbname=$db", "", "", $attr );
+    return $dbh;
+}
+
 # インデックスのファイル
 sub index_path { return "$FindBin::RealBin/../tmp/index.json"; }
 
 # csv 全国版ファイル
 sub csv_all_path { return "$FindBin::RealBin/../csv/KEN_ALL.CSV"; }
+
+# csv 福岡
+sub csv_fukuoka_path { return "$FindBin::RealBin/../csv/40FUKUOK.CSV"; }
 
 # json 形式でファイル保存
 sub save_json {
