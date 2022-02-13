@@ -4,8 +4,10 @@ use warnings;
 use utf8;
 use FindBin;
 use JSON::PP;
+use Zsearch::Error;
 
-sub new { return bless {}, shift; }
+sub new   { return bless {}, shift; }
+sub error { Zsearch::Error->new; }
 
 # インデックスのファイル
 sub index_path { return "$FindBin::RealBin/../tmp/index.json"; }
