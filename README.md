@@ -52,7 +52,7 @@ output
 
 ```json
 {
-  "messege": "検索件数: 90",
+  "message": "検索件数: 90",
   "result": [
     {
       "code": 8120862,

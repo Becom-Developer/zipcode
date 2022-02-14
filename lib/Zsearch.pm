@@ -6,6 +6,7 @@ use FindBin;
 use JSON::PP;
 use Zsearch::Error;
 use Zsearch::Build;
+use Zsearch::SearchSQL;
 use File::Spec;
 use DBI;
 use Time::Piece;
@@ -13,6 +14,7 @@ use Data::Dumper;
 sub new        { return bless {}, shift; }
 sub error      { Zsearch::Error->new; }
 sub build      { Zsearch::Build->new; }
+sub sql        { Zsearch::SearchSQL->new; }
 sub time_stamp { return localtime->datetime( 'T' => ' ' ); }
 
 sub db_file {
@@ -34,6 +36,25 @@ sub build_dbh {
     };
     my $dbh = DBI->connect( "dbi:SQLite:dbname=$db", "", "", $attr );
     return $dbh;
+}
+
+# $self->rows($table, \@cols, \%params);
+sub rows {
+    my ( $self, $table, $cols, $params ) = @_;
+    my $sql_q = [];
+    for my $col ( @{$cols} ) {
+        push @{$sql_q}, qq{$col LIKE "$params->{$col}%"};
+    }
+    push @{$sql_q}, qq{deleted = 0};
+    my $sql_clause = join " AND ", @{$sql_q};
+    my $sql        = qq{SELECT * FROM $table WHERE $sql_clause};
+    my $dbh        = $self->build_dbh;
+    my $hash       = $dbh->selectall_hashref( $sql, 'id' );
+    my $arrey_ref  = [];
+    for my $key ( sort keys %{$hash} ) {
+        push @{$arrey_ref}, $hash->{$key};
+    }
+    return $arrey_ref;
 }
 
 # インデックスのファイル

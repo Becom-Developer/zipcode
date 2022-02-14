@@ -8,14 +8,16 @@ use lib ( "$FindBin::RealBin/../lib", "$FindBin::RealBin/../local/lib/perl5" );
 use Test::Trap;
 use Zsearch;
 use Zsearch::Command;
+use Encode qw(encode decode);
 $ENV{"ZSEARCH_MODE"} = 'test';
 
 subtest 'Class and Method' => sub {
     my @methods = qw{new};
-    can_ok( new_ok('Zsearch'),          (@methods) );
-    can_ok( new_ok('Zsearch::Command'), (@methods) );
-    can_ok( new_ok('Zsearch::Error'),   ( qw{output commit}, @methods ) );
-    can_ok( new_ok('Zsearch::Build'),   (@methods) );
+    can_ok( new_ok('Zsearch'),            (@methods) );
+    can_ok( new_ok('Zsearch::Command'),   (@methods) );
+    can_ok( new_ok('Zsearch::Error'),     ( qw{output commit}, @methods ) );
+    can_ok( new_ok('Zsearch::Build'),     (@methods) );
+    can_ok( new_ok('Zsearch::SearchSQL'), (@methods) );
 };
 
 subtest 'Command' => sub {
@@ -37,6 +39,24 @@ subtest 'Build' => sub {
     ok( $msg->{message} eq $build_msg, $build_msg );
     my $insert_msg = $build->start( { method => 'insert' } );
     like( $insert_msg->{message}, qr/success/, $insert_msg->{message} );
+};
+
+subtest 'SearchSQL' => sub {
+    my $sql       = new_ok('Zsearch::SearchSQL');
+    my $error_msg = $sql->run();
+    my @keys      = keys %{$error_msg};
+    my $key       = shift @keys;
+    ok( $key eq 'error', $error_msg->{$key} );
+    my $test_code = '8120041';
+    my $msg       = $sql->run( { code => $test_code } );
+    my $message   = $msg->{message};
+    like( $message, qr/検索件数: 1/, encode( 'UTF-8', $message ) );
+    my $result = $msg->{result}->[0];
+    ok( $result->{zipcode} eq $test_code, "code: $result->{zipcode}" );
+    my $test_opt = +{ code => '812', pref => '福岡', city => '福岡', town => '吉', };
+    $msg     = $sql->run($test_opt);
+    $message = $msg->{message};
+    like( $message, qr/検索件数: 2/, encode( 'UTF-8', $message ) );
 };
 
 done_testing;
