@@ -45,6 +45,16 @@ sub csv_all_path { return "$FindBin::RealBin/../csv/KEN_ALL.CSV"; }
 # csv 福岡
 sub csv_fukuoka_path { return "$FindBin::RealBin/../csv/40FUKUOK.CSV"; }
 
+# データベース構築用csvファイル
+sub insert_csv {
+    my ($self) = @_;
+    my $file = $self->csv_all_path();
+    if ( $ENV{"ZSEARCH_MODE"} && ( $ENV{"ZSEARCH_MODE"} eq 'test' ) ) {
+        $file = $self->csv_fukuoka_path();
+    }
+    return $file;
+}
+
 # json 形式でファイル保存
 sub save_json {
     my ( $self, $file_path, $data_ref ) = @_;

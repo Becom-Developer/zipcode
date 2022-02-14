@@ -9,7 +9,7 @@ use Zsearch::Search;
 use Data::Dumper;
 use Text::CSV;
 
-sub run2 {
+sub start {
     my ( $self, @args ) = @_;
     my $options = shift @args;
     return $self->error->commit("No arguments") if !$options;
@@ -40,8 +40,7 @@ sub _init {
 
 sub _insert {
     my ( $self, @args ) = @_;
-    # my $path = $self->csv_fukuoka_path();
-    my $path = $self->csv_all_path();
+    my $path = $self->insert_csv();
     my $dt   = $self->time_stamp;
     my $csv  = Text::CSV->new();
     my $fh   = IO::File->new( $path, "<:encoding(utf8)" );
@@ -140,7 +139,6 @@ sub _100_divisions {
 }
 
 sub run {
-    print "run--------\n";
     my ($self) = @_;
     my $tmp_path = "$FindBin::RealBin/../tmp/100/";
     if ( !-d $tmp_path ) {

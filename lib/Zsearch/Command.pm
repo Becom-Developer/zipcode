@@ -1,4 +1,4 @@
-package Zsearch::CLI2;
+package Zsearch::Command;
 use parent 'Zsearch';
 use strict;
 use warnings;
@@ -8,7 +8,7 @@ use Data::Dumper;
 use Getopt::Long qw(GetOptionsFromArray);
 use JSON::PP;
 
-sub hello { print "hello CLI-----\n"; }
+sub hello { print "hello Command-----\n"; }
 
 sub run {
     my ( $self, @args ) = @_;
@@ -27,7 +27,7 @@ sub run {
 
     # 初期設定 / データベース設定更新 build
     if ( $options->{path} eq 'build' ) {
-        print encode_json( $self->build->run2($options) );
+        print encode_json( $self->build->start($options) );
         print "\n";
         return;
     }
