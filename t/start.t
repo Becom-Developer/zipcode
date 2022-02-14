@@ -5,10 +5,11 @@ use Test::More;
 use Data::Dumper;
 use FindBin;
 use lib ( "$FindBin::RealBin/../lib", "$FindBin::RealBin/../local/lib/perl5" );
-use Test::Trap;
+use Test::Trap qw/:die/;
 use Zsearch;
 use Zsearch::Command;
 use Encode qw(encode decode);
+use JSON::PP;
 $ENV{"ZSEARCH_MODE"} = 'test';
 
 subtest 'Class and Method' => sub {
@@ -57,6 +58,32 @@ subtest 'SearchSQL' => sub {
     $msg     = $sql->run($test_opt);
     $message = $msg->{message};
     like( $message, qr/検索件数: 2/, encode( 'UTF-8', $message ) );
+
+    # コマンド経由で実行
+    my $cli = new_ok('Zsearch::Command');
+
+    # 標準入力から送られていることを想定しておく
+    trap {
+        $cli->run(
+            encode( 'UTF-8', '--code=812' ),
+            encode( 'UTF-8', '--pref=福岡' ),
+            encode( 'UTF-8', '--city=福岡' ),
+            encode( 'UTF-8', '--town=吉' ),
+        )
+    };
+    my $stdout = decode_json( $trap->stdout );
+    like( $stdout->{message}, qr/検索件数: 2/,
+        encode( 'UTF-8', $stdout->{message} ) );
+
+    trap {
+        $cli->run(
+            encode( 'UTF-8', '--code=' ),
+            encode( 'UTF-8', '--pref=福岡' ),
+            encode( 'UTF-8', '--city=福岡' ),
+            encode( 'UTF-8', '--town=吉' ),
+        )
+    };
+    like( $trap->die, qr/Error/, encode( 'UTF-8', $trap->die ) );
 };
 
 done_testing;
