@@ -7,6 +7,27 @@ use Data::Dumper;
 use Encode qw(encode decode);
 use JSON::PP;
 
+sub simple {
+    my ( $self, @args ) = @_;
+    my $params = shift @args;
+    my $text   = '';
+    my $result = $params->{result};
+    for my $row ( @{$result} ) {
+        $text .= "$row->{zipcode} $row->{pref}$row->{city}$row->{town}\n";
+    }
+    $text .= $params->{message} . "\n";
+    print encode( 'UTF-8', $text );
+    return;
+}
+
+sub all_items_json {
+    my ( $self, @args ) = @_;
+    my $params = shift @args;
+    print encode_json($params);
+    print "\n";
+    return;
+}
+
 sub stdout {
     my ( $self, $type, $rows ) = @_;
     if ( $type eq 'standard' ) {

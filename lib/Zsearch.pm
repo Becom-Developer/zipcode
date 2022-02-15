@@ -5,15 +5,76 @@ use utf8;
 use FindBin;
 use JSON::PP;
 use Zsearch::Error;
+use Zsearch::Build;
+use Zsearch::SearchSQL;
+use File::Spec;
+use DBI;
+use Time::Piece;
+use Data::Dumper;
+sub new        { return bless {}, shift; }
+sub error      { Zsearch::Error->new; }
+sub build      { Zsearch::Build->new; }
+sub sql        { Zsearch::SearchSQL->new; }
+sub time_stamp { return localtime->datetime( 'T' => ' ' ); }
 
-sub new   { return bless {}, shift; }
-sub error { Zsearch::Error->new; }
+sub db_file {
+    my $db_file = 'zsearch.db';
+    if ( $ENV{"ZSEARCH_MODE"} && ( $ENV{"ZSEARCH_MODE"} eq 'test' ) ) {
+        $db_file = 'zsearch-test.db';
+    }
+    return $db_file;
+}
+
+sub build_dbh {
+    my ( $self, @args ) = @_;
+    my $db_file = $self->db_file;
+    my $db   = File::Spec->catfile( "$FindBin::RealBin", '..', 'db', $db_file );
+    my $attr = +{
+        RaiseError     => 1,
+        AutoCommit     => 1,
+        sqlite_unicode => 1,
+    };
+    my $dbh = DBI->connect( "dbi:SQLite:dbname=$db", "", "", $attr );
+    return $dbh;
+}
+
+# $self->rows($table, \@cols, \%params);
+sub rows {
+    my ( $self, $table, $cols, $params ) = @_;
+    my $sql_q = [];
+    for my $col ( @{$cols} ) {
+        push @{$sql_q}, qq{$col LIKE "$params->{$col}%"};
+    }
+    push @{$sql_q}, qq{deleted = 0};
+    my $sql_clause = join " AND ", @{$sql_q};
+    my $sql        = qq{SELECT * FROM $table WHERE $sql_clause};
+    my $dbh        = $self->build_dbh;
+    my $hash       = $dbh->selectall_hashref( $sql, 'id' );
+    my $arrey_ref  = [];
+    for my $key ( sort keys %{$hash} ) {
+        push @{$arrey_ref}, $hash->{$key};
+    }
+    return $arrey_ref;
+}
 
 # インデックスのファイル
 sub index_path { return "$FindBin::RealBin/../tmp/index.json"; }
 
 # csv 全国版ファイル
 sub csv_all_path { return "$FindBin::RealBin/../csv/KEN_ALL.CSV"; }
+
+# csv 福岡
+sub csv_fukuoka_path { return "$FindBin::RealBin/../csv/40FUKUOK.CSV"; }
+
+# データベース構築用csvファイル
+sub insert_csv {
+    my ($self) = @_;
+    my $file = $self->csv_all_path();
+    if ( $ENV{"ZSEARCH_MODE"} && ( $ENV{"ZSEARCH_MODE"} eq 'test' ) ) {
+        $file = $self->csv_fukuoka_path();
+    }
+    return $file;
+}
 
 # json 形式でファイル保存
 sub save_json {
