@@ -8,6 +8,7 @@ use lib ( "$FindBin::RealBin/../lib", "$FindBin::RealBin/../local/lib/perl5" );
 use Test::Trap qw/:die/;
 use Zsearch;
 use Zsearch::Command;
+use Zsearch::CGI;
 use Encode qw(encode decode);
 use JSON::PP;
 $ENV{"ZSEARCH_MODE"} = 'test';
@@ -19,6 +20,7 @@ subtest 'Class and Method' => sub {
     can_ok( new_ok('Zsearch::Error'),     ( qw{output commit}, @methods ) );
     can_ok( new_ok('Zsearch::Build'),     (@methods) );
     can_ok( new_ok('Zsearch::SearchSQL'), (@methods) );
+    can_ok( new_ok('Zsearch::CGI'),       (@methods) );
 };
 
 subtest 'Command' => sub {
@@ -136,3 +138,48 @@ subtest 'SearchSQL From Command' => sub {
 };
 
 done_testing;
+
+__END__
+
+Zsearch::CGI については手動による動作確認にしておく
+
+local server example
+python3 -m http.server 8000 --cgi
+
+local client example
+curl 'http://localhost:8000/cgi-bin/zipcode.cgi' \
+--verbose \
+--header 'Content-Type: application/json' \
+--header 'accept: application/json' \
+--data-binary '{}'
+
+data-binary example
+
+build はタイムアウトするかもしれない
+{"apikey":"becom","path":"build","method":"init"}
+{"apikey":"becom","path":"build","method":"insert"}
+
+search
+{"apikey":"becom","path":"search","method":"like","params":{}}
+
+search params example
+{"code":"812","town":"吉","pref":"福岡","city":"福岡"}
+
+like search example
+curl 'http://localhost:8000/cgi-bin/zipcode.cgi' \
+--verbose \
+--header 'Content-Type: application/json' \
+--header 'accept: application/json' \
+--data-binary '{"apikey":"becom","path":"search","method":"like","params":{"code":"812","town":"吉","pref":"福岡","city":"福岡"}}'
+
+curl 'http://localhost:8000/cgi-bin/zipcode.cgi' \
+--verbose \
+--header 'Content-Type: application/json' \
+--header 'accept: application/json' \
+--data-binary '{"apikey":"becom","path":"build","method":"init"}'
+
+curl 'http://localhost:8000/cgi-bin/zipcode.cgi' \
+--verbose \
+--header 'Content-Type: application/json' \
+--header 'accept: application/json' \
+--data-binary '{"apikey":"becom","path":"build","method":"insert"}'
