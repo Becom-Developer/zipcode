@@ -7,7 +7,7 @@ use Data::Dumper;
 use Encode qw(encode decode);
 use JSON::PP;
 
-sub to_simple {
+sub simple {
     my ( $self, @args ) = @_;
     my $params = shift @args;
     my $text   = '';
@@ -20,7 +20,7 @@ sub to_simple {
     return;
 }
 
-sub to_json {
+sub all_items_json {
     my ( $self, @args ) = @_;
     my $params = shift @args;
     print encode_json($params);

@@ -13,10 +13,10 @@ sub render { return Zsearch::Render->new; }
 sub hello { print "hello Command-----\n"; }
 
 sub run {
-    my ( $self, @args ) = @_;
-    my ( $path, $method, $params ) = ( '', '', '{}' );
+    my ( $self, @args )               = @_;
+    my ( $path, $method, $params )    = ( '', '', '{}' );
     my ( $code, $pref, $city, $town ) = ( '', '', '', '' );
-    my ($output) = ('');
+    my ($output) = ('json');
     GetOptionsFromArray(
         \@args,
         "path=s"   => \$path,
@@ -41,17 +41,31 @@ sub run {
 
     # 初期設定 / データベース設定更新 build
     if ( $opt->{path} eq 'build' ) {
-        $self->render->to_json( $self->build->start($opt) );
+        $self->render->all_items_json( $self->build->start($opt) );
+        return;
+    }
+
+    # params 指定の場合はそちらを優先
+    my $opt_params = $opt->{params};
+    if ( %{$opt_params} ) {
+        if ( !$opt_params->{output} ) {
+            $opt_params->{output} = 'json';
+        }
+        if ( $opt_params->{output} eq 'simple' ) {
+            $self->render->simple( $self->sql->run($opt_params) );
+            return;
+        }
+        $self->render->all_items_json( $self->sql->run($opt_params) );
         return;
     }
 
     # sql 検索
     if ( $opt->{code} || $opt->{pref} || $opt->{city} || $opt->{town} ) {
         if ( $opt->{output} eq 'simple' ) {
-            $self->render->to_simple( $self->sql->run($opt) );
+            $self->render->simple( $self->sql->run($opt) );
             return;
         }
-        $self->render->to_json( $self->sql->run($opt) );
+        $self->render->all_items_json( $self->sql->run($opt) );
         return;
     }
     return $self->error->output(
