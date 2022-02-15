@@ -7,7 +7,8 @@ use utf8;
 use Data::Dumper;
 use Text::CSV;
 use FindBin;
-use List::Util qw( uniq );
+use List::MoreUtils qw(uniq);
+# use List::Util qw( uniq );
 sub cond { return Zsearch::Cond->new; }
 
 sub csv {
