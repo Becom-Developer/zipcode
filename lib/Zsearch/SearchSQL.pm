@@ -3,8 +3,6 @@ use parent 'Zsearch';
 use strict;
 use warnings;
 use utf8;
-use Data::Dumper;
-use FindBin;
 
 sub run {
     my ( $self, @args ) = @_;

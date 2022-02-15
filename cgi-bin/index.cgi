@@ -2,8 +2,6 @@
 use strict;
 use warnings;
 use utf8;
-use Data::Dumper;
-print Dumper(\@ARGV);
 my $html = <<"END_HTML";
 Content-Type: text/html; charset=utf-8
 

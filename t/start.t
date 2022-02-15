@@ -26,9 +26,9 @@ subtest 'Class and Method' => sub {
 subtest 'Command' => sub {
     my $cli = new_ok('Zsearch::Command');
     trap { $cli->run() };
-    like( $trap->stdout, qr/error/, $trap->stdout );
+    like( $trap->stdout, qr/error/, 'error message' );
     trap { $cli->run( '--path=build', '--method=init', ) };
-    like( $trap->stdout, qr/success/, $trap->stdout );
+    like( $trap->stdout, qr/success/, 'success message' );
 };
 
 subtest 'Build' => sub {
@@ -49,7 +49,7 @@ subtest 'SearchSQL' => sub {
     my $error_msg = $sql->run();
     my @keys      = keys %{$error_msg};
     my $key       = shift @keys;
-    ok( $key eq 'error', $error_msg->{$key} );
+    ok( $key eq 'error', 'error message' );
     {
         my $test_params = +{ code => '8120041' };
         my $output      = $sql->run($test_params);
