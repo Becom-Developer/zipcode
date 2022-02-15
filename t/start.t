@@ -63,18 +63,16 @@ subtest 'SearchSQL' => sub {
     my $cli = new_ok('Zsearch::Command');
 
     # 標準入力から送られていることを想定しておく
-    trap {
-        $cli->run(
-            encode( 'UTF-8', '--code=812' ),
-            encode( 'UTF-8', '--pref=福岡' ),
-            encode( 'UTF-8', '--city=福岡' ),
-            encode( 'UTF-8', '--town=吉' ),
-        )
-    };
+    my @opt_params = (
+        encode( 'UTF-8', '--code=812' ),
+        encode( 'UTF-8', '--pref=福岡' ),
+        encode( 'UTF-8', '--city=福岡' ),
+        encode( 'UTF-8', '--town=吉' ),
+    );
+    trap { $cli->run(@opt_params) };
     my $stdout = decode_json( $trap->stdout );
     like( $stdout->{message}, qr/検索件数: 2/,
         encode( 'UTF-8', $stdout->{message} ) );
-
     trap {
         $cli->run(
             encode( 'UTF-8', '--code=' ),
@@ -84,6 +82,18 @@ subtest 'SearchSQL' => sub {
         )
     };
     like( $trap->die, qr/Error/, encode( 'UTF-8', $trap->die ) );
+
+    # 出力をシンプルモードに
+    my @opt_params_simple =
+      ( @opt_params, encode( 'UTF-8', '--output=simple' ) );
+    trap {
+        $cli->run(@opt_params_simple);
+    };
+    $stdout = decode( 'UTF-8', $trap->stdout );
+    like( $stdout, qr/8120041 福岡県福岡市博多区吉塚/,   'simple' );
+    like( $stdout, qr/8120046 福岡県福岡市博多区吉塚本町/, 'simple' );
+    like( $stdout, qr/検索件数: 2/,               'simple' );
+
 };
 
 done_testing;
