@@ -6,6 +6,12 @@ use utf8;
 use Encode qw(encode decode);
 use JSON::PP;
 
+sub raw {
+    my ( $self, @args ) = @_;
+    print encode( 'UTF-8', shift @args );
+    return;
+}
+
 sub simple {
     my ( $self, @args ) = @_;
     my $params = shift @args;

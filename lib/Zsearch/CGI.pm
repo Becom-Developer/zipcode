@@ -28,11 +28,11 @@ sub run {
             -access_control_allow_credentials => 'true',
         );
     }
-    print $q->header(@headers);
+    $self->render->raw( $q->header(@headers) );
     my $opt      = {};
     my $postdata = $q->param('POSTDATA');
     if ($postdata) {
-        $opt = decode_json $postdata;
+        $opt = decode_json($postdata);
     }
 
     # Validate

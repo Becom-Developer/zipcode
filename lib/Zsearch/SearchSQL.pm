@@ -14,7 +14,9 @@ sub run {
     while ( my ( $key, $val ) = each %{$opts} ) {
         if ( exists $options->{$key} ) {
             $params->{$val} = $options->{$key};
-            push @{$cols}, $val;
+            if ( $options->{$key} ne '' ) {
+                push @{$cols}, $val;
+            }
         }
     }
     return $self->error->commit("Zipcode not specified correctly:")
