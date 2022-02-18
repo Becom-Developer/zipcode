@@ -16,8 +16,7 @@ ln -s ~/github/zsearch-api/script/zsearch zsearch
 モジュール
 
 ```zsh
-./cpanm -l ~/github/zsearch-api/local --installdeps .
-./cpanm -l ~/www/zsearch-api/local --installdeps .
+./cpanm -l ./local --installdeps .
 ```
 
 デプロイ
@@ -25,8 +24,7 @@ ln -s ~/github/zsearch-api/script/zsearch zsearch
 ```zsh
 ssh becom@becom.sakura.ne.jp
 cd ~/www/zsearch-api
-git fetch
-
+git fetch && git checkout main && git pull
 ```
 
 input
@@ -134,7 +132,7 @@ update_reason -- 変更理由
 - ダウンロードデータについての注意
   - <https://www.post.japanpost.jp/zipcode/dl/readme.html>
 
-コマンドを使ったダンロードの例
+コマンドを使ったダウンロードの例
 
 ```zsh
 curl -O https://www.post.japanpost.jp/zipcode/dl/jigyosyo/zip/jigyosyo.zip
