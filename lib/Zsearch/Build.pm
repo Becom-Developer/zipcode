@@ -12,8 +12,10 @@ sub start {
     return $self->error->commit("No arguments") if !$options;
 
     # 初期設定時のdbファイル準備
-    return $self->_init()   if $options->{method} eq 'init';
-    return $self->_insert() if $options->{method} eq 'insert';
+    return $self->_init()    if $options->{method} eq 'init';
+    return $self->_insert()  if $options->{method} eq 'insert';
+    return $self->_dump()    if $options->{method} eq 'dump';
+    return $self->_restore() if $options->{method} eq 'restore';
     return $self->error->commit(
         "Method not specified correctly: $options->{method}");
 }
@@ -74,6 +76,35 @@ sub _insert {
     }
     $fh->close;
     return +{ message => qq{insert success $path} };
+}
+
+sub _dump {
+    my ( $self, @args ) = @_;
+    my $db        = $self->db_file_path;
+    my $dump_file = $self->dump_file;
+    my $dump      = $self->dump_file_path;
+    die "not file: $!: $db" if !-e $db;
+
+    # 例: sqlite3 zsearch.db .dump > zsearch.dump
+    my $cmd = "sqlite3 $db .dump > $dump";
+    system $cmd and die "Couldn'n run: $cmd ($!)";
+    return +{ message => qq{dump success $dump_file} };
+}
+
+sub _restore {
+    my ( $self, @args ) = @_;
+    my $db_file = $self->db_file;
+    my $db      = $self->db_file_path;
+    my $dump    = $self->dump_file_path;
+    die "not file: $!: $dump" if !-e $dump;
+    if ( -e $db ) {
+        unlink $db;
+    }
+
+    # 例: sqlite3 zsearch.db < zsearch.dump
+    my $cmd = "sqlite3 $db < $dump";
+    system $cmd and die "Couldn'n run: $cmd ($!)";
+    return +{ message => qq{restore success $db_file} };
 }
 
 1;
