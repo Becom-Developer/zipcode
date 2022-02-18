@@ -1,4 +1,4 @@
-# zipcode
+# zsearch-api
 
 郵便番号から住所を検索するコマンドラインアプリ
 
@@ -10,7 +10,21 @@
 
 ```zsh
 cd ~/bin
-ln -s ~/github/zipcode/script/zsearch zsearch
+ln -s ~/github/zsearch-api/script/zsearch zsearch
+```
+
+モジュール
+
+```zsh
+./cpanm -l ~/github/zsearch-api/local --installdeps .
+```
+
+デプロイ
+
+```zsh
+ssh becom@becom.sakura.ne.jp
+cd ~/www/zsearch-api
+
 ```
 
 input
