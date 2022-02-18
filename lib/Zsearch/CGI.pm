@@ -43,10 +43,6 @@ sub run {
       if $apikey ne $opt->{apikey};
 
     # Routing
-    if ( $opt->{path} eq 'build' ) {
-        $self->render->all_items_json( $self->build->start($opt) );
-        return;
-    }
     if ( $opt->{path} eq 'search' ) {
         $self->render->all_items_json( $self->sql->run( $opt->{params} ) );
         return;

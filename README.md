@@ -20,6 +20,9 @@ zsearch --code=812
 zsearch --code=812 --output=simple
 zsearch --code=812 --pref=福岡 --city=福岡 --town=吉 --output=json
 zsearch --path=build --method=init
+zsearch --path=build --method=insert
+zsearch --path=build --method=dump
+zsearch --path=build --method=restore
 zsearch --params='{}'
 ```
 

@@ -37,11 +37,18 @@ subtest 'Build' => sub {
     my @keys      = keys %{$error_msg};
     my $key       = shift @keys;
     ok( $key eq 'error', 'error message' );
-    my $msg       = $build->start( { method => 'init' } );
-    my $build_msg = 'build success zsearch-test.db';
-    ok( $msg->{message} eq $build_msg, $build_msg );
-    my $insert_msg = $build->start( { method => 'insert' } );
-    like( $insert_msg->{message}, qr/success/, $insert_msg->{message} );
+    for my $method ( 'init', 'insert', 'dump' ) {
+        my $output = $build->start( { method => $method } );
+        like( $output->{message}, qr/success/, $output->{message} );
+    }
+    {
+        # db ファイル削除して新しくできたもので検索テスト
+        my $db = $build->db_file_path;
+        unlink $db;
+        ok( !-e $db, 'db file' );
+        my $output = $build->start( { method => 'restore' } );
+        like( $output->{message}, qr/success/, $output->{message} );
+    }
 };
 
 subtest 'SearchSQL' => sub {
@@ -155,10 +162,6 @@ curl 'http://localhost:8000/cgi-bin/zipcode.cgi' \
 
 data-binary example
 
-build はタイムアウトするかもしれない
-{"apikey":"becom","path":"build","method":"init"}
-{"apikey":"becom","path":"build","method":"insert"}
-
 search
 {"apikey":"becom","path":"search","method":"like","params":{}}
 
@@ -171,15 +174,3 @@ curl 'http://localhost:8000/cgi-bin/zipcode.cgi' \
 --header 'Content-Type: application/json' \
 --header 'accept: application/json' \
 --data-binary '{"apikey":"becom","path":"search","method":"like","params":{"code":"812","town":"吉","pref":"福岡","city":"福岡"}}'
-
-curl 'http://localhost:8000/cgi-bin/zipcode.cgi' \
---verbose \
---header 'Content-Type: application/json' \
---header 'accept: application/json' \
---data-binary '{"apikey":"becom","path":"build","method":"init"}'
-
-curl 'http://localhost:8000/cgi-bin/zipcode.cgi' \
---verbose \
---header 'Content-Type: application/json' \
---header 'accept: application/json' \
---data-binary '{"apikey":"becom","path":"build","method":"insert"}'

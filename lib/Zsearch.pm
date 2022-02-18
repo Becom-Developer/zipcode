@@ -21,6 +21,10 @@ sub db_file_path  { File::Spec->catfile( home(), '..', 'db', db_file() ); }
 sub db_dir_path   { File::Spec->catfile( home(), '..', 'db' ); }
 sub sql_file_path { File::Spec->catfile( home(), '..', 'zsearch.sql' ); }
 
+sub dump_file_path {
+    File::Spec->catfile( home(), '..', 'backup', dump_file() );
+}
+
 sub dump {
     my ( $self, @args ) = @_;
     my $d = Data::Dumper->new( [ shift @args ] );
@@ -28,11 +32,19 @@ sub dump {
 }
 
 sub insert_csv {
-    my $file = File::Spec->catfile( home(), '..', 'csv', 'KEN_ALL.CSV' );
+    my $file = File::Spec->catfile( home(), '..', 'backup', 'KEN_ALL.CSV' );
     if ( $ENV{"ZSEARCH_MODE"} && ( $ENV{"ZSEARCH_MODE"} eq 'test' ) ) {
-        $file = File::Spec->catfile( home(), '..', 'csv', '40FUKUOK.CSV' );
+        $file = File::Spec->catfile( home(), '..', 'backup', '40FUKUOK.CSV' );
     }
     return $file;
+}
+
+sub dump_file {
+    my $dump_file = 'zsearch.dump';
+    if ( $ENV{"ZSEARCH_MODE"} && ( $ENV{"ZSEARCH_MODE"} eq 'test' ) ) {
+        $dump_file = 'zsearch-test.dump';
+    }
+    return $dump_file;
 }
 
 sub db_file {
