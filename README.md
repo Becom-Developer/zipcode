@@ -1,4 +1,4 @@
-# zipcode
+# zsearch-api
 
 郵便番号から住所を検索するコマンドラインアプリ
 
@@ -10,7 +10,21 @@
 
 ```zsh
 cd ~/bin
-ln -s ~/github/zipcode/script/zsearch zsearch
+ln -s ~/github/zsearch-api/script/zsearch zsearch
+```
+
+モジュール
+
+```zsh
+./cpanm -l ./local --installdeps .
+```
+
+デプロイ
+
+```zsh
+ssh becom@becom.sakura.ne.jp
+cd ~/www/zsearch-api
+git fetch && git checkout main && git pull
 ```
 
 input
@@ -36,8 +50,18 @@ zsearch --params='{}'
 }
 ```
 
+`like search example`
+
 ```zsh
-curl 'https://zsearch-api.becom.co.jp/zsearch.cgi' \
+curl 'https://zsearch-api.becom.co.jp/' \
+--verbose \
+--header 'Content-Type: application/json' \
+--header 'accept: application/json' \
+--data-binary '{"apikey":"becom","path":"search","method":"like","params":{"code":"812","town":"吉","pref":"福岡","city":"福岡"}}'
+```
+
+```zsh
+curl 'https://zsearch-api.becom.co.jp/' \
 --verbose \
 --request POST \
 --header 'Content-Type: application/json' \
@@ -108,7 +132,7 @@ update_reason -- 変更理由
 - ダウンロードデータについての注意
   - <https://www.post.japanpost.jp/zipcode/dl/readme.html>
 
-コマンドを使ったダンロードの例
+コマンドを使ったダウンロードの例
 
 ```zsh
 curl -O https://www.post.japanpost.jp/zipcode/dl/jigyosyo/zip/jigyosyo.zip
