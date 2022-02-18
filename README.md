@@ -52,8 +52,18 @@ zsearch --params='{}'
 }
 ```
 
+`like search example`
+
 ```zsh
-curl 'https://zsearch-api.becom.co.jp/zsearch.cgi' \
+curl 'https://zsearch-api.becom.co.jp/' \
+--verbose \
+--header 'Content-Type: application/json' \
+--header 'accept: application/json' \
+--data-binary '{"apikey":"becom","path":"search","method":"like","params":{"code":"812","town":"吉","pref":"福岡","city":"福岡"}}'
+```
+
+```zsh
+curl 'https://zsearch-api.becom.co.jp/' \
 --verbose \
 --request POST \
 --header 'Content-Type: application/json' \
