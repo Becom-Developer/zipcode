@@ -16,7 +16,7 @@ $ENV{"ZSEARCH_MODE"} = 'test';
 subtest 'Class and Method' => sub {
     my @methods = qw{new};
     can_ok( new_ok('Zsearch'),            (@methods) );
-    can_ok( new_ok('Zsearch::CLI'),   (@methods) );
+    can_ok( new_ok('Zsearch::CLI'),       (@methods) );
     can_ok( new_ok('Zsearch::Error'),     ( qw{output commit}, @methods ) );
     can_ok( new_ok('Zsearch::Build'),     (@methods) );
     can_ok( new_ok('Zsearch::SearchSQL'), (@methods) );

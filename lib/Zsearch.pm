@@ -23,7 +23,7 @@ sub sql_file_path { File::Spec->catfile( home(), '..', 'zsearch.sql' ); }
 
 sub dump {
     my ( $self, @args ) = @_;
-    my $d = Data::Dumper->new( [shift @args] );
+    my $d = Data::Dumper->new( [ shift @args ] );
     return $d->Dump;
 }
 
