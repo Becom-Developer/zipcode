@@ -3,8 +3,6 @@ use parent 'Zsearch';
 use strict;
 use warnings;
 use utf8;
-use Encode qw(encode decode);
-use Data::Dumper;
 use CGI;
 use JSON::PP;
 use Zsearch::Render;
@@ -30,11 +28,11 @@ sub run {
             -access_control_allow_credentials => 'true',
         );
     }
-    print $q->header(@headers);
+    $self->render->raw( $q->header(@headers) );
     my $opt      = {};
     my $postdata = $q->param('POSTDATA');
     if ($postdata) {
-        $opt = decode_json $postdata;
+        $opt = decode_json($postdata);
     }
 
     # Validate
@@ -53,8 +51,7 @@ sub run {
         $self->render->all_items_json( $self->sql->run( $opt->{params} ) );
         return;
     }
-    return $self->error->output(
-        "The path is specified incorrectly: $opt->{path}");
+    return $self->error->output("The path is specified incorrectly");
 }
 
 1;

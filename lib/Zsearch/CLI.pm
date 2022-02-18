@@ -1,87 +1,73 @@
 package Zsearch::CLI;
 use parent 'Zsearch';
-use Zsearch::Render;
-use Zsearch::Search;
-use Zsearch::Build;
 use strict;
 use warnings;
 use utf8;
 use Encode qw(encode decode);
-use Data::Dumper;
-use Getopt::Long;
-
-sub hello  { print "hello CLI-----\n"; }
-sub search { return Zsearch::Search->new; }
+use Getopt::Long qw(GetOptionsFromArray);
+use JSON::PP;
+use Zsearch::Render;
 sub render { return Zsearch::Render->new; }
-sub build  { return Zsearch::Build->new; }
-
-# オプションの設定
-my ( $code, $pref, $city, $town ) = ('','','','');
-my $path = Zsearch::csv_all_path();
-my $type = 'standard';
-my $mode = 'auto';
-GetOptions(
-    "code=s" => \$code,
-    "pref=s" => \$pref,
-    "city=s" => \$city,
-    "town=s" => \$town,
-    "path=s" => \$path,
-    "type=s" => \$type,
-    "mode=s" => \$mode,
-) or die("Error in command line arguments\n");
-
-$code = decode( 'UTF-8', $code );
-$pref = decode( 'UTF-8', $pref );
-$city = decode( 'UTF-8', $city );
-$town = decode( 'UTF-8', $town );
-$type = decode( 'UTF-8', $type );
-$mode = decode( 'UTF-8', $mode );
 
 sub run {
-    my ( $self, @args ) = @_;
-
-    # 検索用インデックスの作成
-    return $self->build->run if $mode eq 'build';
-
-    # csv データから条件検索して結果を取得
-    my $cond = +{
-        code => $code,
-        pref => $pref,
-        city => $city,
-        town => $town,
-        path => $path,
-        mode => $mode,
+    my ( $self, @args )               = @_;
+    my ( $path, $method, $params )    = ( '', '', '{}' );
+    my ( $code, $pref, $city, $town ) = ( '', '', '', '' );
+    my ($output) = ('json');
+    GetOptionsFromArray(
+        \@args,
+        "path=s"   => \$path,
+        "method=s" => \$method,
+        "code=s"   => \$code,
+        "pref=s"   => \$pref,
+        "city=s"   => \$city,
+        "town=s"   => \$town,
+        "output=s" => \$output,
+        "params=s" => \$params,
+    ) or die("Error in command line arguments\n");
+    my $opt = +{
+        path   => decode( 'UTF-8', $path ),
+        method => decode( 'UTF-8', $method ),
+        params => decode_json($params),
+        code   => decode( 'UTF-8', $code ),
+        pref   => decode( 'UTF-8', $pref ),
+        city   => decode( 'UTF-8', $city ),
+        town   => decode( 'UTF-8', $town ),
+        output => decode( 'UTF-8', $output ),
     };
-    my $rows = $self->search->json($cond);
 
-    # 結果を画面表示 (標準出力へ標準の形式での)
-    $self->render->stdout( $type, $rows );
-    return;
+    # 初期設定 / データベース設定更新 build
+    if ( $opt->{path} eq 'build' ) {
+        $self->render->all_items_json( $self->build->start($opt) );
+        return;
+    }
+
+    # params 指定の場合はそちらを優先
+    my $opt_params = $opt->{params};
+    if ( %{$opt_params} ) {
+        if ( !$opt_params->{output} ) {
+            $opt_params->{output} = 'json';
+        }
+        if ( $opt_params->{output} eq 'simple' ) {
+            $self->render->simple( $self->sql->run($opt_params) );
+            return;
+        }
+        $self->render->all_items_json( $self->sql->run($opt_params) );
+        return;
+    }
+
+    # sql 検索
+    if ( $opt->{code} || $opt->{pref} || $opt->{city} || $opt->{town} ) {
+        if ( $opt->{output} eq 'simple' ) {
+            $self->render->simple( $self->sql->run($opt) );
+            return;
+        }
+        $self->render->all_items_json( $self->sql->run($opt) );
+        return;
+    }
+    return $self->error->output("The path is specified incorrectly");
 }
 
 1;
 
 __END__
-
-郵便番号および住所の前方一致絞り込み検索アプリ
-
-検索用インデックスの作成
-zsearch --mode=build
-
-郵便番号検索
-zsearch --mode=auto --code=812
-
-省略した指定
-zsearch --code=812
-
-json 形式で出力
-zsearch --type=json --code=812
-
-項目による絞り込み検索
-zsearch --code=812 --pref=福岡 --city=福岡 --town=吉
-
-csv ファイルによる絞り込み検索
-zsearch --mode=csv --code=812 --pref=福岡 --city=福岡 --town=吉
-
-csv ファイルによる絞り込み検索
-zsearch --mode=csv --code=812 --pref=福岡 --city=福岡 --town=吉
