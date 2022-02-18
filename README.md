@@ -17,6 +17,7 @@ ln -s ~/github/zsearch-api/script/zsearch zsearch
 
 ```zsh
 ./cpanm -l ~/github/zsearch-api/local --installdeps .
+./cpanm -l ~/www/zsearch-api/local --installdeps .
 ```
 
 デプロイ
@@ -24,6 +25,7 @@ ln -s ~/github/zsearch-api/script/zsearch zsearch
 ```zsh
 ssh becom@becom.sakura.ne.jp
 cd ~/www/zsearch-api
+git fetch
 
 ```
 
