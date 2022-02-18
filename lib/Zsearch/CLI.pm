@@ -1,4 +1,4 @@
-package Zsearch::Command;
+package Zsearch::CLI;
 use parent 'Zsearch';
 use strict;
 use warnings;

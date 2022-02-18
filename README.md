@@ -91,3 +91,66 @@ update_reason -- 変更理由
     (0: 変更なし, 1: 市政・区政・町政・分区・政令指定都市施行,
      2: 住居表示の実施, 3: 区画整理, 4: 郵便区調整等, 5: 訂正, 6: 廃止)
 ```
+
+## Data
+
+郵便番号の元データについて
+
+郵便局のwebサイトから郵便番号データダウンロードをおこなう
+
+- 郵便番号データダウンロード
+  - <https://www.post.japanpost.jp/zipcode/download.html>
+- 読み仮名データの促音・拗音を小書きで表記するもの(zip形式)
+  - <https://www.post.japanpost.jp/zipcode/dl/kogaki-zip.html>
+- ダウンロードデータについての注意
+  - <https://www.post.japanpost.jp/zipcode/dl/readme.html>
+
+コマンドを使ったダンロードの例
+
+```zsh
+curl -O https://www.post.japanpost.jp/zipcode/dl/jigyosyo/zip/jigyosyo.zip
+```
+
+文字コードの問題
+
+```text
+※1 文字コードには、MS漢字コード（SHIFT JIS）を使用しています。
+※2 文字セットとして、JIS X0208-1983を使用し、規定されていない文字はひらがなで表記しています。
+1レコードの区切りは、キャリッジリターン（CR）＋ラインフィード（LF）です。
+```
+
+- 文字コードはutf8に整え、改行コードはLF
+  - nkf を活用して処理
+  - nkf は入力側のテキストの文字コードは自動判定してくれる
+
+homebrew を使った入手
+
+```zsh
+brew install nkf
+```
+
+ダウンロードのオリジナルのファイルを改名しておいて、utf8に変換したものを活用するようにしたい。
+
+```zsh
+mv ~/tmp/40FUKUOK.CSV ~/tmp/40FUKUOK_org.CSV
+```
+
+変換を実行するまえに念のために確認
+
+```zsh
+nkf --guess ~/tmp/40FUKUOK_org.CSV
+Shift_JIS (CRLF)
+```
+
+実行例
+
+```zsh
+nkf -wLu ~/tmp/40FUKUOK_org.CSV > ~/tmp/40FUKUOK.CSV
+```
+
+実行後の確認
+
+```zsh
+nkf --guess ~/tmp/40FUKUOK.CSV
+UTF-8 (LF)
+```

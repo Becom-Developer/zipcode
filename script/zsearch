@@ -4,5 +4,5 @@ use warnings;
 use utf8;
 use FindBin;
 use lib ( "$FindBin::RealBin/../lib", "$FindBin::RealBin/../local/lib/perl5" );
-use Zsearch::Command;
-Zsearch::Command->new->run(@ARGV);
+use Zsearch::CLI;
+Zsearch::CLI->new->run(@ARGV);

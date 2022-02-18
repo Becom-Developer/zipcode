@@ -7,7 +7,7 @@ use FindBin;
 use lib ( "$FindBin::RealBin/../lib", "$FindBin::RealBin/../local/lib/perl5" );
 use Test::Trap qw/:die/;
 use Zsearch;
-use Zsearch::Command;
+use Zsearch::CLI;
 use Zsearch::CGI;
 use Encode qw(encode decode);
 use JSON::PP;
@@ -16,15 +16,15 @@ $ENV{"ZSEARCH_MODE"} = 'test';
 subtest 'Class and Method' => sub {
     my @methods = qw{new};
     can_ok( new_ok('Zsearch'),            (@methods) );
-    can_ok( new_ok('Zsearch::Command'),   (@methods) );
+    can_ok( new_ok('Zsearch::CLI'),   (@methods) );
     can_ok( new_ok('Zsearch::Error'),     ( qw{output commit}, @methods ) );
     can_ok( new_ok('Zsearch::Build'),     (@methods) );
     can_ok( new_ok('Zsearch::SearchSQL'), (@methods) );
     can_ok( new_ok('Zsearch::CGI'),       (@methods) );
 };
 
-subtest 'Command' => sub {
-    my $cli = new_ok('Zsearch::Command');
+subtest 'CLI' => sub {
+    my $cli = new_ok('Zsearch::CLI');
     trap { $cli->run() };
     like( $trap->stdout, qr/error/, 'error message' );
     trap { $cli->run( '--path=build', '--method=init', ) };
@@ -68,8 +68,8 @@ subtest 'SearchSQL' => sub {
 
 # コマンド経由で実行
 # 標準入力から送られていることを想定しておく
-subtest 'SearchSQL From Command' => sub {
-    my $cli = new_ok('Zsearch::Command');
+subtest 'SearchSQL From CLI' => sub {
+    my $cli = new_ok('Zsearch::CLI');
     my $test_params =
       +{ code => '812', pref => '福岡', city => '福岡', town => '吉', };
 
