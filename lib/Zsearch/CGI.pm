@@ -20,12 +20,13 @@ sub run {
         -charset => 'utf-8',
     );
     my $cookie = $q->cookie(
-        -name    => 'sessionID',
-        -value   => 'xyzzy',
-        -expires => '+1h',
-        -path    => '/',
-        -domain  => '.becom.co.jp',
-        -secure  => 1
+        -name     => 'sessionID',
+        -value    => 'xyzzy',
+        -expires  => '+1h',
+        -path     => '/',
+        -domain   => '.becom.co.jp',
+        -samesite => 'none',
+        -secure   => 1
     );
     if ($origin) {
         @headers = (
