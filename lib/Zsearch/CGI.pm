@@ -31,7 +31,7 @@ sub run {
     # );
 
     my $cookie =
-      'name=sessionID;Max-Age=100;Domain=.becom.co.jp;samesite=none;Secure';
+      'name=sessionID;Max-Age=100;SameSite=None;Secure';
 
     if ($origin) {
         @headers = (
