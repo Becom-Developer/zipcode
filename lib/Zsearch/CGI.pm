@@ -19,7 +19,7 @@ sub run {
         -type    => 'application/json',
         -charset => 'utf-8',
     );
-    my $cookie = cookie(
+    my $cookie = $q->cookie(
         -name    => 'sessionID',
         -value   => 'xyzzy',
         -expires => '+1h',
