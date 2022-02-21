@@ -19,15 +19,20 @@ sub run {
         -type    => 'application/json',
         -charset => 'utf-8',
     );
-    my $cookie = $q->cookie(
-        -name     => 'sessionID',
-        -value    => 'xyzzy',
-        -expires  => '+1h',
-        -path     => '/',
-        -domain   => '.becom.co.jp',
-        -samesite => 'none',
-        -secure   => 1
-    );
+
+    # my $cookie = $q->cookie(
+    #     -name     => 'sessionID',
+    #     -value    => 'xyzzy',
+    #     -expires  => '+1h',
+    #     -path     => '/',
+    #     -domain   => '.becom.co.jp',
+    #     -samesite => 'none',
+    #     -secure   => 1
+    # );
+
+    my $cookie =
+      'name=sessionID;Max-Age=100;Domain=.becom.co.jp;samesite=none;Secure';
+
     if ($origin) {
         @headers = (
             @headers,
