@@ -19,6 +19,14 @@ sub run {
         -type    => 'application/json',
         -charset => 'utf-8',
     );
+    my $cookie = cookie(
+        -name    => 'sessionID',
+        -value   => 'xyzzy',
+        -expires => '+1h',
+        -path    => '/',
+        -domain  => '.becom.co.jp',
+        -secure  => 1
+    );
     if ($origin) {
         @headers = (
             @headers,
@@ -26,6 +34,7 @@ sub run {
             -access_control_allow_headers => 'content-type,X-Requested-With',
             -access_control_allow_methods => 'GET,POST,OPTIONS',
             -access_control_allow_credentials => 'true',
+            -cookie                           => $cookie,
         );
     }
     $self->render->raw( $q->header(@headers) );
