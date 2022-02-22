@@ -11,48 +11,18 @@ sub render { return Zsearch::Render->new; }
 sub run {
     my ( $self, @args ) = @_;
     my $apikey = 'becom';
-    warn 'run--------1';
 
     # http header
-    my $q      = CGI->new();
-    my $origin = $ENV{HTTP_ORIGIN};
+    my $q = CGI->new();
 
-    my $cookie1 = $q->cookie(
-        -name     => 'sessionID',
-        -value    => 'xyzzy',
-        -expires  => '+1h',
-        -path     => '/',
-        -domain   => '.becom.co.jp',
-        -samesite => 'none',
-        -secure   => 1
-    );
+    # cookieでapikeyを取得した場合はこちらで判定
+    # apikeyのdbができてから実装
+    # my $cookie_apikey = $query->cookie('apikey');
 
-    my $cookie2 = $q->cookie(
-        -name     => 'sessionID2',
-        -value    => 'xyzzyfooo',
-        -expires  => '+1h',
-        -path     => '/',
-        -samesite => 'none',
-        -secure   => 1
-    );
-
-    my $cookie3 = $q->cookie(
-        -name     => 'sessionID3',
-        -value    => 'xyzzybar',
-        -expires  => '+1h',
-        -domain   => 'mhj-api.becom.co.jp',
-        -path     => '/',
-        -samesite => 'none',
-        -secure   => 1
-    );
-
-    my $cookie4 =
-"name=sessionID4=xyzzybarbar;expires=1000;domain=.becom.co.jp;path=/;samesite=none;secure";
-
+    my $origin  = $ENV{HTTP_ORIGIN};
     my @headers = (
         -type    => 'application/json',
         -charset => 'utf-8',
-        -cookie  => [ $cookie1, $cookie2, $cookie3, $cookie4 ],
     );
     if ($origin) {
         @headers = (
@@ -64,14 +34,11 @@ sub run {
         );
     }
     $self->render->raw( $q->header(@headers) );
-    warn $self->dump( $q->header(@headers) );
-    warn 'run-------2';
     my $opt      = {};
     my $postdata = $q->param('POSTDATA');
     if ($postdata) {
         $opt = decode_json($postdata);
     }
-    warn 'run-------3';
 
     # Validate
     return $self->error->output(
