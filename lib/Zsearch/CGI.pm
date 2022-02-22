@@ -13,7 +13,12 @@ sub run {
     my $apikey = 'becom';
 
     # http header
-    my $q       = CGI->new();
+    my $q = CGI->new();
+
+    # cookieでapikeyを取得した場合はこちらで判定
+    # apikeyのdbができてから実装
+    # my $cookie_apikey = $query->cookie('apikey');
+
     my $origin  = $ENV{HTTP_ORIGIN};
     my @headers = (
         -type    => 'application/json',
