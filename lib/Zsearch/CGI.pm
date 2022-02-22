@@ -40,16 +40,19 @@ sub run {
         -name     => 'sessionID3',
         -value    => 'xyzzybar',
         -expires  => '+1h',
-        -domain   => 'mhj-web.becom.co.jp',
+        -domain   => 'mhj-api.becom.co.jp',
         -path     => '/',
         -samesite => 'none',
         -secure   => 1
     );
 
+    my $cookie4 =
+"name=sessionID4=xyzzybarbar;expires=1000;domain=.becom.co.jp;path=/;samesite=none;secure";
+
     my @headers = (
         -type    => 'application/json',
         -charset => 'utf-8',
-        -cookie  => [ $cookie1, $cookie2, $cookie3 ],
+        -cookie  => [ $cookie1, $cookie2, $cookie3, $cookie4 ],
     );
     if ($origin) {
         @headers = (
