@@ -13,18 +13,26 @@ cd ~/bin
 ln -s ~/github/zsearch-api/script/zsearch zsearch
 ```
 
-モジュール
+Module
 
 ```zsh
+curl -L https://cpanmin.us/ -o cpanm
+chmod +x cpanm
 ./cpanm -l ./local --installdeps .
 ```
 
 デプロイ
 
 ```zsh
-ssh becom@becom.sakura.ne.jp
+ssh becom2022@becom2022.sakura.ne.jp
 cd ~/www/zsearch-api
 git fetch && git checkout main && git pull
+```
+
+ローカル環境での実行
+
+```sh
+perl -I ./local/lib/perl5 ./local/bin/morbo ./script/app
 ```
 
 input
