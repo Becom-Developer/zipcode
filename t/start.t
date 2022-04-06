@@ -15,7 +15,6 @@ use File::Temp qw/ tempfile tempdir /;
 my $temp     = File::Temp->newdir( DIR => $FindBin::RealBin, CLEANUP => 1, );
 my $test_dir = $temp->dirname;
 $ENV{"ZSEARCH_MODE"}    = 'test';
-$ENV{"ZSEARCH_MODE"}    = 'test';
 $ENV{"ZSEARCH_TESTDIR"} = $test_dir;
 $ENV{"ZSEARCH_DUMP"}    = File::Spec->catfile( $test_dir, 'zsearch.dump' );
 $ENV{"ZSEARCH_DB"}      = File::Spec->catfile( $test_dir, 'zsearch.db' );
