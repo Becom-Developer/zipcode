@@ -11,7 +11,22 @@ use Zsearch::CLI;
 use Zsearch::CGI;
 use Encode qw(encode decode);
 use JSON::PP;
-$ENV{"ZSEARCH_MODE"} = 'test';
+use File::Temp qw/ tempfile tempdir /;
+my $temp     = File::Temp->newdir( DIR => $FindBin::RealBin, CLEANUP => 1, );
+my $test_dir = $temp->dirname;
+$ENV{"ZSEARCH_MODE"}    = 'test';
+$ENV{"ZSEARCH_MODE"}    = 'test';
+$ENV{"ZSEARCH_TESTDIR"} = $test_dir;
+$ENV{"ZSEARCH_DUMP"}    = File::Spec->catfile( $test_dir, 'zsearch.dump' );
+$ENV{"ZSEARCH_DB"}      = File::Spec->catfile( $test_dir, 'zsearch.db' );
+
+subtest 'File' => sub {
+    my $script =
+      File::Spec->catfile( $FindBin::RealBin, '..', 'script', 'zsearch' );
+    ok( -x $script, "script file: $script" );
+    my $sql = File::Spec->catfile( $FindBin::RealBin, '..', 'zsearch.sql' );
+    ok( -e $sql, "sql file: $sql" );
+};
 
 subtest 'Class and Method' => sub {
     my @methods = qw{new};
@@ -21,6 +36,40 @@ subtest 'Class and Method' => sub {
     can_ok( new_ok('Zsearch::Build'),     (@methods) );
     can_ok( new_ok('Zsearch::SearchSQL'), (@methods) );
     can_ok( new_ok('Zsearch::CGI'),       (@methods) );
+};
+
+subtest 'Framework Render' => sub {
+    my $obj   = new_ok('Zsearch::Render');
+    my $chars = '日本語';
+    subtest 'raw' => sub {
+        my $bytes = encode( 'UTF-8', $chars );
+        trap { $obj->raw($chars) };
+        like( $trap->stdout, qr/$bytes/, 'render method raw' );
+    };
+    subtest 'all_items_json' => sub {
+        my $hash  = { jang => $chars };
+        my $bytes = encode_json($hash);
+        trap { $obj->all_items_json($hash) };
+        like( $trap->stdout, qr/$bytes/, 'render method all_items_json' );
+    };
+};
+
+subtest 'Framework Error' => sub {
+    my $obj   = new_ok('Zsearch::Error');
+    my $chars = '予期せぬエラー';
+    subtest 'commit' => sub {
+        my $hash = $obj->commit($chars);
+        like( $hash->{error}->{message}, qr/$chars/, "error commit" );
+    };
+    subtest 'output' => sub {
+        my $hash  = $obj->commit($chars);
+        my $bytes = encode_json($hash);
+        trap { $obj->output($chars); };
+        my $commit_chars = decode( 'utf-8', $bytes );
+        my $stdout_chars = decode( 'utf-8', $trap->stdout );
+        chomp($stdout_chars);
+        is( $commit_chars, $stdout_chars, 'error output' );
+    };
 };
 
 subtest 'CLI' => sub {
