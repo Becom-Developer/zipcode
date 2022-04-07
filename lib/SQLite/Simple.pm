@@ -86,21 +86,23 @@ sub build_insert {
     my $csv    = Text::CSV->new();
 
     # time stamp の指定
-    my $stamp_cols = $params->{time_stamp};
-    my $stamp_int  = [];
-    my $int        = 0;
-    for my $col ( @{$cols} ) {
-        if ( grep { $_ eq $col } @{$stamp_cols} ) {
-            push @{$stamp_int}, $int;
-        }
-        $int += 1;
-    }
-    my $dt = $self->time_stamp;
+    my ( $is_stamp, $stamp_int, $dt ) = $self->_time_stamp($params);
+
+    # 上書きの値
+    my ( $is_rewrite, $rewrite_params ) = $self->_rewrite($params);
     while ( my $row = $csv->getline($fh) ) {
         my $data = $row;
-        if ($stamp_cols) {
+        if ($is_stamp) {
             for my $int ( @{$stamp_int} ) {
                 $data->[$int] = $dt;
+            }
+        }
+        if ($is_rewrite) {
+            for my $rewrite_param ( @{$rewrite_params} ) {
+                for my $key ( keys %{$rewrite_param} ) {
+                    my $val = $rewrite_param->{$key};
+                    $data->[$key] = $params->{rewrite}->{$val};
+                }
             }
         }
         my $sth = $dbh->prepare($sql);
@@ -108,6 +110,50 @@ sub build_insert {
     }
     $fh->close;
     return +{ message => qq{insert success $path} };
+}
+
+sub _time_stamp {
+    my ( $self, @args ) = @_;
+    my $params     = shift @args;
+    my $is_stamp   = 0;
+    my $cols       = $params->{cols};
+    my $stamp_cols = $params->{time_stamp};
+    return ( $is_stamp, undef, undef ) if !$stamp_cols;
+    return ( $is_stamp, undef, undef ) if scalar( @{$stamp_cols} ) eq 0;
+
+    my $stamp_int = [];
+    my $int       = 0;
+    for my $col ( @{$cols} ) {
+        if ( grep { $_ eq $col } @{$stamp_cols} ) {
+            push @{$stamp_int}, $int;
+        }
+        $int += 1;
+    }
+    my $dt = $self->time_stamp;
+    $is_stamp = 1;
+    return ( $is_stamp, $stamp_int, $dt );
+}
+
+sub _rewrite {
+    my ( $self, @args ) = @_;
+    my $params     = shift @args;
+    my $is_rewrite = 0;
+    my $cols       = $params->{cols};
+    my $rewrite    = $params->{rewrite};
+    return ( $is_rewrite, undef, undef ) if !$rewrite;
+    return ( $is_rewrite, undef, undef ) if !%{$rewrite};
+    my @keys           = keys %{$rewrite};
+    my $rewrite_params = [];
+    my $int            = 0;
+
+    for my $col ( @{$cols} ) {
+        if ( grep { $_ eq $col } @keys ) {
+            push @{$rewrite_params}, { $int => $col };
+        }
+        $int += 1;
+    }
+    $is_rewrite = 1;
+    return ( $is_rewrite, $rewrite_params );
 }
 
 sub build_dump {

@@ -79,27 +79,82 @@ subtest 'CLI' => sub {
     like( $trap->stdout, qr/success/, 'success message' );
 };
 
-subtest 'Build' => sub {
-    my $build     = new_ok('Zsearch::Build');
-    my $error_msg = $build->start();
-    my @keys      = keys %{$error_msg};
-    my $key       = shift @keys;
-    ok( $key eq 'error', 'error message' );
-    for my $method ( 'init', 'insert', 'dump' ) {
-        my $output = $build->start( { method => $method } );
-        like( $output->{message}, qr/success/, $output->{message} );
-    }
-    {
-        # db ファイル削除して新しくできたもので検索テスト
-        my $db = $build->db_file_path;
+subtest 'Framework Build' => sub {
+    my $obj = new_ok('Zsearch::Build');
+    my $msg = $obj->start()->{error}->{message};
+    ok( $msg, 'error message' );
+    subtest 'init' => sub {
+        my $hash = $obj->start( { method => 'init' } );
+        like( $hash->{message}, qr/success/, 'success init' );
+        my $file_name = 'zsearch-stg.db';
+        my $stg =
+          $obj->start( { method => 'init', params => { name => $file_name } } );
+        like( $stg->{message}, qr/$file_name/, 'success init' );
+    };
+    subtest 'insert' => sub {
+        my $csv  = File::Spec->catfile( $FindBin::RealBin, '40FUKUOK.CSV' );
+        my $hash = $obj->start(
+            {
+                method => 'insert',
+                params => {
+                    csv   => $csv,
+                    table => 'post',
+                    cols  => [
+                        'local_code',    'zipcode_old',
+                        'zipcode',       'pref_kana',
+                        'city_kana',     'town_kana',
+                        'pref',          'city',
+                        'town',          'double_zipcode',
+                        'town_display',  'city_block_display',
+                        'double_town',   'update_zipcode',
+                        'update_reason', 'deleted',
+                        'created_ts',    'modified_ts',
+                    ],
+                    time_stamp => [ 'created_ts', 'modified_ts', ],
+                    rewrite    => { deleted => 0 },
+                }
+            }
+        );
+        like( $hash->{message}, qr/success/, 'success insert' );
+    };
+    subtest 'dump' => sub {
+        my $hash = $obj->start( { method => 'dump', } );
+        like( $hash->{message}, qr/success/, 'success dump' );
+    };
+    subtest 'restore' => sub {
+        my $db = $obj->db_file_path;
         unlink $db;
-        ok( !-e $db, 'db file' );
-        my $output = $build->start( { method => 'restore' } );
-        like( $output->{message}, qr/success/, $output->{message} );
-    }
+        ok( !-e $db, "delete db file" );
+        my $hash = $obj->start( { method => 'restore', } );
+        like( $hash->{message}, qr/success/, 'success restore' );
+    };
 };
 
 subtest 'SearchSQL' => sub {
+    new_ok('Zsearch::Build')->start( { method => 'init' } );
+    my $csv = File::Spec->catfile( $FindBin::RealBin, '40FUKUOK.CSV' );
+    new_ok('Zsearch::Build')->start(
+        {
+            method => 'insert',
+            params => {
+                csv   => $csv,
+                table => 'post',
+                cols  => [
+                    'local_code',    'zipcode_old',
+                    'zipcode',       'pref_kana',
+                    'city_kana',     'town_kana',
+                    'pref',          'city',
+                    'town',          'double_zipcode',
+                    'town_display',  'city_block_display',
+                    'double_town',   'update_zipcode',
+                    'update_reason', 'deleted',
+                    'created_ts',    'modified_ts',
+                ],
+                time_stamp => [ 'created_ts', 'modified_ts', ],
+                rewrite    => { deleted => 0 },
+            }
+        }
+    );
     my $sql       = new_ok('Zsearch::SearchSQL');
     my $error_msg = $sql->run();
     my @keys      = keys %{$error_msg};

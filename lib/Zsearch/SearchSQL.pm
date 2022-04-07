@@ -21,10 +21,9 @@ sub run {
     }
     return $self->error->commit("Zipcode not specified correctly:")
       if !@{$cols};
-    my $q_params = +{ %{$params}, deleted => 0, };
-    my $rows     = $self->db->search( 'post', $q_params, { cond => 'LIKE%' } );
-    my $count    = @{$rows};
-    my $output   = +{
+    my $rows   = $self->valid_search( 'post', $params, { cond => 'LIKE%' } );
+    my $count  = @{$rows};
+    my $output = +{
         message => "検索件数: $count",
         result  => $rows,
     };

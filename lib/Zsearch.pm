@@ -57,9 +57,9 @@ sub valid_single {
 }
 
 sub valid_search {
-    my ( $self, $table, $params ) = @_;
+    my ( $self, $table, $params, $opt ) = @_;
     my $q_params = +{ %{$params}, deleted => 0, };
-    return $self->db->search( $table, $q_params );
+    return $self->db->search( $table, $q_params, $opt );
 }
 
 sub safe_insert {
@@ -79,50 +79,20 @@ sub safe_update {
     return $self->db->single_to( $table, $q_params )->update($u_params);
 }
 
-sub insert_csv {
-    my $file = File::Spec->catfile( home(), '..', 'backup', 'KEN_ALL.CSV' );
-    if ( $ENV{"ZSEARCH_MODE"} && ( $ENV{"ZSEARCH_MODE"} eq 'test' ) ) {
-        $file = File::Spec->catfile( home(), '..', 'backup', '40FUKUOK.CSV' );
-    }
-    return $file;
-}
-
-sub build_dbh {
-    my ( $self, @args ) = @_;
-    my $db   = $self->db_file_path;
-    my $attr = +{
-        RaiseError     => 1,
-        AutoCommit     => 1,
-        sqlite_unicode => 1,
-    };
-    my $dbh = DBI->connect( "dbi:SQLite:dbname=$db", "", "", $attr );
-    return $dbh;
-}
-
 # file
-sub home          { $FindBin::RealBin; }
-sub db_file_path  { File::Spec->catfile( home(), '..', 'db', db_file() ); }
-sub db_dir_path   { File::Spec->catfile( home(), '..', 'db' ); }
-sub sql_file_path { File::Spec->catfile( home(), '..', 'zsearch.sql' ); }
-
-sub db_file {
-    my $db_file = 'zsearch.db';
-    if ( $ENV{"ZSEARCH_MODE"} && ( $ENV{"ZSEARCH_MODE"} eq 'test' ) ) {
-        $db_file = 'zsearch-test.db';
-    }
-    return $db_file;
-}
+sub home          { File::Spec->catfile( $FindBin::RealBin, '..' ); }
+sub homedb        { File::Spec->catfile( home(),            'db' ); }
+sub homebackup    { File::Spec->catfile( home(),            'backup' ); }
+sub sql_file_path { File::Spec->catfile( home(),            'zsearch.sql' ); }
 
 sub dump_file_path {
-    File::Spec->catfile( home(), '..', 'backup', dump_file() );
+    return $ENV{"ZSEARCH_DUMP"} if $ENV{"ZSEARCH_DUMP"};
+    return File::Spec->catfile( homebackup(), 'zsearch.dump' );
 }
 
-sub dump_file {
-    my $dump_file = 'zsearch.dump';
-    if ( $ENV{"ZSEARCH_MODE"} && ( $ENV{"ZSEARCH_MODE"} eq 'test' ) ) {
-        $dump_file = 'zsearch-test.dump';
-    }
-    return $dump_file;
+sub db_file_path {
+    return $ENV{"ZSEARCH_DB"} if $ENV{"ZSEARCH_DB"};
+    return File::Spec->catfile( homedb(), 'zsearch.db' );
 }
 
 1;
