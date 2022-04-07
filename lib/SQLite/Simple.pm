@@ -177,13 +177,19 @@ sub single {
     return $dbh->selectrow_hashref($sql);
 }
 
-# my $arrey_ref = $self->db->search($table, \%params);
+# my $arrey_ref = $self->db->search($table, \%params, \%opt);
 sub search {
-    my ( $self,  @args )   = @_;
-    my ( $table, $params ) = @args;
+    my ( $self, @args ) = @_;
+    my ( $table, $params, $opt ) = @args;
     my $sql_q = [];
+    my $cond  = $opt->{cond};
     while ( my ( $key, $val ) = each %{$params} ) {
-        push @{$sql_q}, qq{$key = "$val"};
+        if ( $cond && $cond eq 'LIKE%' ) {
+            push @{$sql_q}, qq{$key LIKE "$val%"};
+        }
+        else {
+            push @{$sql_q}, qq{$key = "$val"};
+        }
     }
     my $sql_clause = join " AND ", @{$sql_q};
     my $sql        = qq{SELECT * FROM $table WHERE $sql_clause};

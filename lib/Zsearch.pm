@@ -99,25 +99,6 @@ sub build_dbh {
     return $dbh;
 }
 
-# $self->rows($table, \@cols, \%params);
-sub rows {
-    my ( $self, $table, $cols, $params ) = @_;
-    my $sql_q = [];
-    for my $col ( @{$cols} ) {
-        push @{$sql_q}, qq{$col LIKE "$params->{$col}%"};
-    }
-    push @{$sql_q}, qq{deleted = 0};
-    my $sql_clause = join " AND ", @{$sql_q};
-    my $sql        = qq{SELECT * FROM $table WHERE $sql_clause};
-    my $dbh        = $self->build_dbh;
-    my $hash       = $dbh->selectall_hashref( $sql, 'id' );
-    my $arrey_ref  = [];
-    for my $key ( sort keys %{$hash} ) {
-        push @{$arrey_ref}, $hash->{$key};
-    }
-    return $arrey_ref;
-}
-
 # file
 sub home          { $FindBin::RealBin; }
 sub db_file_path  { File::Spec->catfile( home(), '..', 'db', db_file() ); }
