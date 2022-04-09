@@ -3,8 +3,7 @@ use parent 'Zsearch';
 use strict;
 use warnings;
 use utf8;
-use File::Path qw(make_path);
-use Text::CSV;
+use File::Spec;
 
 sub start {
     my ( $self, @args ) = @_;
