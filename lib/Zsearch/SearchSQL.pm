@@ -4,6 +4,15 @@ use strict;
 use warnings;
 use utf8;
 
+# sub run {
+#     my ( $self, @args ) = @_;
+#     my $options = shift @args;
+#     return $self->error->commit("No arguments") if !$options;
+#     return $self->_run($options)                if $options->{method} eq 'like';
+#     return $self->error->commit(
+#         "Method not specified correctly: $options->{method}");
+# }
+
 sub run {
     my ( $self, @args ) = @_;
     my $opts =

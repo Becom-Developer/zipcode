@@ -56,7 +56,7 @@ Response parameters
 CLI
 
 ```zsh
-beauth build init
+zserch build init --params='{}'
 ```
 
 ### Build insert
@@ -94,7 +94,7 @@ Response parameters
 CLI
 
 ```zsh
-beauth build insert --params='{}'
+zserch build insert --params='{}'
 ```
 
 ### Build dump
@@ -116,7 +116,7 @@ Response parameters
 CLI
 
 ```zsh
-beauth build dump
+zserch build dump
 ```
 
 ### Build restore
@@ -138,5 +138,5 @@ Response parameters
 CLI
 
 ```zsh
-beauth build restore
+zserch build restore
 ```
