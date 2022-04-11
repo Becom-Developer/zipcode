@@ -48,8 +48,9 @@ sub run {
       if $apikey ne $opt->{apikey};
 
     # Routing
-    if ( $opt->{path} eq 'search' ) {
-        $self->render->all_items_json( $self->sql->run( $opt->{params} ) );
+    if ( $opt->{resource} eq 'search' ) {
+        my $output = $self->sql->run($opt);
+        $self->render->all_items_json($output);
         return;
     }
     return $self->error->output("The path is specified incorrectly");
