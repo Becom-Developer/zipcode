@@ -32,7 +32,7 @@ git fetch && git checkout main && git pull
 ローカル環境での実行
 
 ```sh
-perl -I ./local/lib/perl5 ./local/bin/morbo ./script/app
+perl -I ./local/lib/perl5 ./local/bin/morbo -l "http://*:3010" ./script/app
 ```
 
 input
@@ -131,11 +131,11 @@ update_reason -- 変更理由
 
 郵便番号の元データについて
 
-郵便局のwebサイトから郵便番号データダウンロードをおこなう
+郵便局の web サイトから郵便番号データダウンロードをおこなう
 
 - 郵便番号データダウンロード
   - <https://www.post.japanpost.jp/zipcode/download.html>
-- 読み仮名データの促音・拗音を小書きで表記するもの(zip形式)
+- 読み仮名データの促音・拗音を小書きで表記するもの(zip 形式)
   - <https://www.post.japanpost.jp/zipcode/dl/kogaki-zip.html>
 - ダウンロードデータについての注意
   - <https://www.post.japanpost.jp/zipcode/dl/readme.html>
@@ -154,7 +154,7 @@ curl -O https://www.post.japanpost.jp/zipcode/dl/jigyosyo/zip/jigyosyo.zip
 1レコードの区切りは、キャリッジリターン（CR）＋ラインフィード（LF）です。
 ```
 
-- 文字コードはutf8に整え、改行コードはLF
+- 文字コードは utf8 に整え、改行コードは LF
   - nkf を活用して処理
   - nkf は入力側のテキストの文字コードは自動判定してくれる
 
@@ -164,7 +164,7 @@ homebrew を使った入手
 brew install nkf
 ```
 
-ダウンロードのオリジナルのファイルを改名しておいて、utf8に変換したものを活用するようにしたい。
+ダウンロードのオリジナルのファイルを改名しておいて、utf8 に変換したものを活用するようにしたい。
 
 ```zsh
 mv ~/tmp/40FUKUOK.CSV ~/tmp/40FUKUOK_org.CSV
