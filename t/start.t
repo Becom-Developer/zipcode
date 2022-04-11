@@ -169,22 +169,23 @@ subtest 'SearchSQL' => sub {
             }
         }
     );
-    my $sql       = new_ok('Zsearch::SearchSQL');
-    my $error_msg = $sql->run();
-    my @keys      = keys %{$error_msg};
-    my $key       = shift @keys;
-    ok( $key eq 'error', 'error message' );
+    my $obj = new_ok('Zsearch::SearchSQL');
+    my $msg = $obj->run()->{error}->{message};
+    ok( $msg, 'error message' );
     {
         my $test_params = +{ code => '8120041' };
-        my $output      = $sql->run($test_params);
+        my $args        = { method => "like", params => $test_params };
+        my $output      = $obj->run($args);
         my $message     = $output->{message};
         like( $message, qr/検索件数: 1/, encode( 'UTF-8', $message ) );
         my $zipcode = $output->{result}->[0]->{zipcode};
         ok( $zipcode eq $test_params->{code}, "code: $zipcode" );
     }
     {
-        my $output = $sql->run(
-            +{ code => '812', pref => '福岡', city => '福岡', town => '吉', } );
+        my $test_params =
+          +{ code => '812', pref => '福岡', city => '福岡', town => '吉', };
+        my $args    = { method => "like", params => $test_params };
+        my $output  = $obj->run($args);
         my $message = $output->{message};
         like( $message, qr/検索件数: 2/, encode( 'UTF-8', $message ) );
     }
@@ -192,74 +193,64 @@ subtest 'SearchSQL' => sub {
 
 # コマンド経由で実行
 # 標準入力から送られていることを想定しておく
-# subtest 'SearchSQL From CLI' => sub {
-#     my $cli = new_ok('Zsearch::CLI');
-#     my $test_params =
-#       +{ code => '812', pref => '福岡', city => '福岡', town => '吉', };
+subtest 'SearchSQL From CLI' => sub {
+    my $cli = new_ok('Zsearch::CLI');
+    my $test_params =
+      +{ code => '812', pref => '福岡', city => '福岡', town => '吉', };
 
-#     # zsearch --code=812 --pref=福岡 --city=福岡 --town=吉
-#     {
-#         my @opt_params = ();
-#         while ( my ( $key, $val ) = each %{$test_params} ) {
-#             push @opt_params, encode( 'UTF-8', qq{--$key=$val} );
-#         }
-#         trap { $cli->run(@opt_params) };
-#         my $output  = decode_json( $trap->stdout );
-#         my $message = $output->{message};
-#         like( $message, qr/検索件数: 2/, encode( 'UTF-8', $message ) );
-#     }
+    # zsearch search like --params='{}'
+    # {"code":"812","pref":"福岡","city":"福岡","town":"吉"}
+    {
+        my @opt_params = ();
+        push @opt_params, encode( 'UTF-8', qq{search} );
+        push @opt_params, encode( 'UTF-8', qq{like} );
+        my $bytes  = encode_json($test_params);
+        my $params = encode( 'UTF-8', qq{--params=} );
+        my $opt    = $params . $bytes;
+        push @opt_params, $opt;
+        trap { $cli->run(@opt_params) };
+        my $output  = decode_json( $trap->stdout );
+        my $message = $output->{message};
+        like( $message, qr/検索件数: 2/, encode( 'UTF-8', $message ) );
+    }
 
-#     # zsearch --code= --pref=福岡 --city=福岡 --town=吉
-#     {
-#         my @opt_params = ();
-#         while ( my ( $key, $val ) = each %{$test_params} ) {
-#             if ( $key eq 'code' ) {
-#                 push @opt_params, encode( 'UTF-8', qq{--$key=} );
-#             }
-#             else {
-#                 push @opt_params, encode( 'UTF-8', qq{--$key=$val} );
-#             }
-#         }
-#         trap { $cli->run(@opt_params) };
-#         like( $trap->die, qr/Error/, 'die error' );
-#     }
+    # zsearch search like --params='{}'
+    # {"code":"","pref":"福岡","city":"福岡","town":"吉"}
+    {
+        my @opt_params = ();
+        push @opt_params, encode( 'UTF-8', qq{search} );
+        push @opt_params, encode( 'UTF-8', qq{like} );
+        my $none_code = { %{$test_params} };
+        $none_code->{code} = "";
+        my $bytes  = encode_json($none_code);
+        my $params = encode( 'UTF-8', qq{--params=} );
+        my $opt    = $params . $bytes;
+        push @opt_params, $opt;
+        trap { $cli->run(@opt_params) };
+        my $output  = decode_json( $trap->stdout );
+        my $message = $output->{message};
+        like( $message, qr/検索件数: 3/, encode( 'UTF-8', $message ) );
+    }
 
-#     # zsearch --code=812 --pref=福岡 --city=福岡 --town=吉 --output=simple
-#     {
-#         my @opt_params = ();
-#         while ( my ( $key, $val ) = each %{$test_params} ) {
-#             push @opt_params, encode( 'UTF-8', qq{--$key=$val} );
-#         }
-#         push @opt_params, encode( 'UTF-8', '--output=simple' );
-#         trap { $cli->run(@opt_params) };
-#         my $output = decode( 'UTF-8', $trap->stdout );
-#         like( $output, qr/8120041 福岡県福岡市博多区吉塚/,   'simple' );
-#         like( $output, qr/8120046 福岡県福岡市博多区吉塚本町/, 'simple' );
-#         like( $output, qr/検索件数: 2/,               'simple' );
-#     }
-
-#     # zsearch --params='{}'
-#     # {"code":"812","town":"吉","pref":"福岡","city":"福岡"}
-#     {
-#         my $text_json = decode( 'UTF-8', encode_json($test_params) );
-#         trap { $cli->run( encode( 'UTF-8', "--params=$text_json" ) ) };
-#         my $output  = decode_json( $trap->stdout );
-#         my $message = $output->{message};
-#         like( $message, qr/検索件数: 2/, encode( 'UTF-8', $message ) );
-#     }
-
-#     # zsearch --params='{}'
-#     # {"code":"812","town":"吉","pref":"福岡","city":"福岡","output":"simple"}
-#     {
-#         my $text_json = decode( 'UTF-8',
-#             encode_json( +{ %{$test_params}, output => 'simple' } ) );
-#         trap { $cli->run( encode( 'UTF-8', "--params=$text_json" ) ) };
-#         my $output = decode( 'UTF-8', $trap->stdout );
-#         like( $output, qr/8120041 福岡県福岡市博多区吉塚/,   'simple' );
-#         like( $output, qr/8120046 福岡県福岡市博多区吉塚本町/, 'simple' );
-#         like( $output, qr/検索件数: 2/,               'simple' );
-#     }
-# };
+    # zsearch search like --params='{}'
+    # {"code":"812","pref":"福岡","city":"福岡","town":"吉","output":"simple"}
+    {
+        my @opt_params = ();
+        push @opt_params, encode( 'UTF-8', qq{search} );
+        push @opt_params, encode( 'UTF-8', qq{like} );
+        my $output_simple = { %{$test_params} };
+        $output_simple->{output} = "simple";
+        my $bytes  = encode_json($output_simple);
+        my $params = encode( 'UTF-8', qq{--params=} );
+        my $opt    = $params . $bytes;
+        push @opt_params, $opt;
+        trap { $cli->run(@opt_params) };
+        my $output = decode( 'UTF-8', $trap->stdout );
+        like( $output, qr/8120041 福岡県福岡市博多区吉塚/,   'simple' );
+        like( $output, qr/8120046 福岡県福岡市博多区吉塚本町/, 'simple' );
+        like( $output, qr/検索件数: 2/,               'simple' );
+    }
+};
 
 done_testing;
 

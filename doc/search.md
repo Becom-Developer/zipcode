@@ -47,26 +47,50 @@ Request parameters
 {"code":"812","pref":"福岡","city":"福岡","town":"吉"}
 ```
 
+or
+
+```json
+{"code":"812","pref":"福岡","city":"福岡","town":"吉","output":"simple"}
+```
+
 Response parameters
 
 ```json
 {
-  "message": "検索件数: 90",
   "result": [
     {
-      "code": 8120862,
-      "pref": "福岡県",
+      "created_ts": "2022-02-17 17:07:47",
+      "town_kana": "ヨシヅカ",
+      "update_reason": "0",
+      "local_code": "40132",
+      "town_display": "0",
+      "pref_kana": "フクオカケン",
       "city": "福岡市博多区",
-      "town": "立花寺"
-    },
-    {
-      "code": 8120039,
+      "deleted": 0,
+      "zipcode_old": "812  ",
+      "modified_ts": "2022-02-17 17:07:47",
+      "city_kana": "フクオカシハカタク",
+      "id": 112390,
+      "double_town": "0",
+      "double_zipcode": "0",
       "pref": "福岡県",
-      "city": "福岡市博多区",
-      "town": "冷泉町"
+      "town": "吉塚",
+      "update_zipcode": "0",
+      "city_block_display": "1",
+      "zipcode": "8120041"
     }
-  ]
+    // { ... }
+  ],
+  "message": "検索件数: 2"
 }
+```
+
+or
+
+```text
+8120041 福岡県福岡市博多区吉塚
+8120046 福岡県福岡市博多区吉塚本町
+検索件数: 2
 ```
 
 HTTP
