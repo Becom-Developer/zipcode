@@ -25,19 +25,19 @@ perl -I ./local/lib/perl5 ./local/bin/morbo -l "http://*:3010" ./script/app
 リクエスト
 
 ```zsh
-curl 'http://localhost:3000/'
+curl 'http://localhost:3010/'
 ```
 
 cgi ファイルを起動の場合
 
 ```zsh
-python3 -m http.server 8000 --cgi
+python3 -m http.server 3010 --cgi
 ```
 
 リクエスト
 
 ```zsh
-curl 'http://localhost:3000/cgi-bin/index.cgi'
+curl 'http://localhost:3010/cgi-bin/index.cgi'
 ```
 
 コマンドラインによる起動
