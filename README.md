@@ -2,108 +2,104 @@
 
 郵便番号から住所を検索するコマンドラインアプリ
 
-## SETUP
+## Setup
 
-ホームディレクトリ配下 bin ディレクトリを起動ファイルの置き場にしている場合
+事前に`plenv`を使えるようにしておき指定バージョンのPerlを使えるように
 
-シンボリックリンクを作成 (パスは読み替えてください)
-
-```zsh
-cd ~/bin
-ln -s ~/github/zsearch-api/script/zsearch zsearch
-```
-
-Module
+git clone にてソースコードを配置後プロジェクト配下にてモジュールをインストール
 
 ```zsh
-curl -L https://cpanmin.us/ -o cpanm
-chmod +x cpanm
 ./cpanm -l ./local --installdeps .
 ```
 
-デプロイ
+## Work
+
+ローカル開発時の起動方法など
+
+app サーバー起動の場合
 
 ```zsh
+perl -I ./local/lib/perl5 ./local/bin/morbo -l "http://*:3010" ./script/app
+```
+
+リクエスト
+
+```zsh
+curl 'http://localhost:3000/'
+```
+
+cgi ファイルを起動の場合
+
+```zsh
+python3 -m http.server 8000 --cgi
+```
+
+リクエスト
+
+```zsh
+curl 'http://localhost:3000/cgi-bin/index.cgi'
+```
+
+コマンドラインによる起動
+
+```zsh
+./script/zsearch
+```
+
+詳細は[doc/](doc/)を参照
+
+公開環境へ公開
+
+```sh
 ssh becom2022@becom2022.sakura.ne.jp
 cd ~/www/zsearch-api
 git fetch && git checkout main && git pull
 ```
 
-ローカル環境での実行
+## Usage
 
-```sh
-perl -I ./local/lib/perl5 ./local/bin/morbo -l "http://*:3010" ./script/app
-```
-
-input
-
-```zsh
-zsearch --code=812
-zsearch --code=812 --output=simple
-zsearch --code=812 --pref=福岡 --city=福岡 --town=吉 --output=json
-zsearch --path=build --method=init
-zsearch --path=build --method=insert
-zsearch --path=build --method=dump
-zsearch --path=build --method=restore
-zsearch --params='{}'
-```
-
-```json
-{
-  "code": 812,
-  "pref": "福岡",
-  "city": "福岡",
-  "town": "吉",
-  "output": "json"
-}
-```
-
-`like search example`
-
-```zsh
-curl 'https://zsearch-api.becom.co.jp/' \
---verbose \
---header 'Content-Type: application/json' \
---header 'accept: application/json' \
---data-binary '{"apikey":"becom","path":"search","method":"like","params":{"code":"812","town":"吉","pref":"福岡","city":"福岡"}}'
-```
-
-```zsh
-curl 'https://zsearch-api.becom.co.jp/' \
---verbose \
---request POST \
---header 'Content-Type: application/json' \
---header 'accept: application/json' \
---data-binary '{"apikey":"becom","params":{}}'
-```
-
-output
+### CLI
 
 ```text
-8120862 福岡県福岡市博多区立花寺
-8120039 福岡県福岡市博多区冷泉町
-検索件数: 90
+zsearch <resource> <method> [--params=<JSON>]
+
+  <resource>  Specify each resource name
+  <method>    Specify each method name
+  --params    Json format with reference to request parameters
+
+Specify the resource name as the first argument
+Specify the method name as the second argument
+Format command line interface options in json format
+
+第一引数はリソース名を指定
+第二引数はメソッド名を指定
+コマンドラインインターフェスのオプションはjson形式で整形してください
 ```
 
-```json
-{
-  "message": "検索件数: 90",
-  "result": [
-    {
-      "code": 8120862,
-      "pref": "福岡県",
-      "city": "福岡市博多区",
-      "town": "立花寺"
-    },
-    {
-      "code": 8120039,
-      "pref": "福岡県",
-      "city": "福岡市博多区",
-      "town": "冷泉町"
-    }
-  ]
-}
+### HTTP
+
+```text
+POST https://zsearch-api.becom.co.jp/
+
+http request requires apikey
+All specifications should be included in the post request parameters
+See Examples in each document for usage
+
+http リクエストには apikey の指定が必要
+全ての指定は post リクエストのパラメーターに含めてください
+使用法は各ドキュメントの Example を参照
 ```
+
+### Resource
+
+See here for details: [doc/](doc/)
+
+```text
+build     Environment
+search    Search for zip code information
+```
+
+## Memo
 
 ```text
 https://www.post.japanpost.jp/zipcode/dl/readme.html
