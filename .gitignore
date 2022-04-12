@@ -1,5 +1,2 @@
 db
 local
-cpanfile.snapshot
-tmp
-backup/zsearch-test.dump
