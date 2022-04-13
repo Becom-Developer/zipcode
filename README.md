@@ -2,99 +2,109 @@
 
 郵便番号から住所を検索するコマンドラインアプリ
 
-## SETUP
+## Setup
 
-ホームディレクトリ配下 bin ディレクトリを起動ファイルの置き場にしている場合
+事前に`plenv`を使えるようにしておき指定バージョンのPerlを使えるように
 
-シンボリックリンクを作成 (パスは読み替えてください)
-
-```zsh
-cd ~/bin
-ln -s ~/github/zsearch-api/script/zsearch zsearch
-```
-
-モジュール
+git clone にてソースコードを配置後プロジェクト配下にてモジュールをインストール
 
 ```zsh
 ./cpanm -l ./local --installdeps .
 ```
 
-デプロイ
+## Work
+
+ローカル開発時の起動方法など
+
+app サーバー起動の場合
 
 ```zsh
-ssh becom@becom.sakura.ne.jp
+perl -I ./local/lib/perl5 ./local/bin/morbo -l "http://*:3010" ./script/app
+```
+
+リクエスト
+
+```zsh
+curl 'http://localhost:3010/'
+```
+
+cgi ファイルを起動の場合
+
+```zsh
+python3 -m http.server 3010 --cgi
+```
+
+リクエスト
+
+```zsh
+curl 'http://localhost:3010/cgi-bin/index.cgi'
+```
+
+コマンドラインによる起動
+
+```zsh
+./script/zsearch
+```
+
+詳細は[doc/](doc/)を参照
+
+公開環境へ公開
+
+```sh
+ssh becom2022@becom2022.sakura.ne.jp
 cd ~/www/zsearch-api
 git fetch && git checkout main && git pull
 ```
 
-input
+## Usage
 
-```zsh
-zsearch --code=812
-zsearch --code=812 --output=simple
-zsearch --code=812 --pref=福岡 --city=福岡 --town=吉 --output=json
-zsearch --path=build --method=init
-zsearch --path=build --method=insert
-zsearch --path=build --method=dump
-zsearch --path=build --method=restore
-zsearch --params='{}'
-```
-
-```json
-{
-  "code": 812,
-  "pref": "福岡",
-  "city": "福岡",
-  "town": "吉",
-  "output": "json"
-}
-```
-
-`like search example`
-
-```zsh
-curl 'https://zsearch-api.becom.co.jp/' \
---verbose \
---header 'Content-Type: application/json' \
---header 'accept: application/json' \
---data-binary '{"apikey":"becom","path":"search","method":"like","params":{"code":"812","town":"吉","pref":"福岡","city":"福岡"}}'
-```
-
-```zsh
-curl 'https://zsearch-api.becom.co.jp/' \
---verbose \
---request POST \
---header 'Content-Type: application/json' \
---header 'accept: application/json' \
---data-binary '{"apikey":"becom","params":{}}'
-```
-
-output
+### CLI
 
 ```text
-8120862 福岡県福岡市博多区立花寺
-8120039 福岡県福岡市博多区冷泉町
-検索件数: 90
+zsearch <resource> <method> [--params=<JSON>]
+
+  <resource>  Specify each resource name
+  <method>    Specify each method name
+  --params    Json format with reference to request parameters
+
+Specify the resource name as the first argument
+Specify the method name as the second argument
+Format command line interface options in json format
+
+第一引数はリソース名を指定
+第二引数はメソッド名を指定
+コマンドラインインターフェスのオプションはjson形式で整形してください
 ```
 
-```json
-{
-  "message": "検索件数: 90",
-  "result": [
-    {
-      "code": 8120862,
-      "pref": "福岡県",
-      "city": "福岡市博多区",
-      "town": "立花寺"
-    },
-    {
-      "code": 8120039,
-      "pref": "福岡県",
-      "city": "福岡市博多区",
-      "town": "冷泉町"
-    }
-  ]
-}
+### HTTP
+
+```text
+POST https://zsearch-api.becom.co.jp/
+
+http request requires apikey
+All specifications should be included in the post request parameters
+See Examples in each document for usage
+
+http リクエストには apikey の指定が必要
+全ての指定は post リクエストのパラメーターに含めてください
+使用法は各ドキュメントの Example を参照
+```
+
+### Resource
+
+See here for details: [doc/](doc/)
+
+```text
+build     Environment
+search    Search for zip code information
+```
+
+## Memo
+
+sqlite-simple についてはしばらくはダウンロード対応
+
+```zsh
+cp ~/Downloads/SQLite-Simple-main/lib/SQLite/Simple.pm ~/github/zsearch-api/lib/SQLite
 ```
 
 ```text
@@ -123,11 +133,11 @@ update_reason -- 変更理由
 
 郵便番号の元データについて
 
-郵便局のwebサイトから郵便番号データダウンロードをおこなう
+郵便局の web サイトから郵便番号データダウンロードをおこなう
 
 - 郵便番号データダウンロード
   - <https://www.post.japanpost.jp/zipcode/download.html>
-- 読み仮名データの促音・拗音を小書きで表記するもの(zip形式)
+- 読み仮名データの促音・拗音を小書きで表記するもの(zip 形式)
   - <https://www.post.japanpost.jp/zipcode/dl/kogaki-zip.html>
 - ダウンロードデータについての注意
   - <https://www.post.japanpost.jp/zipcode/dl/readme.html>
@@ -146,7 +156,7 @@ curl -O https://www.post.japanpost.jp/zipcode/dl/jigyosyo/zip/jigyosyo.zip
 1レコードの区切りは、キャリッジリターン（CR）＋ラインフィード（LF）です。
 ```
 
-- 文字コードはutf8に整え、改行コードはLF
+- 文字コードは utf8 に整え、改行コードは LF
   - nkf を活用して処理
   - nkf は入力側のテキストの文字コードは自動判定してくれる
 
@@ -156,7 +166,7 @@ homebrew を使った入手
 brew install nkf
 ```
 
-ダウンロードのオリジナルのファイルを改名しておいて、utf8に変換したものを活用するようにしたい。
+ダウンロードのオリジナルのファイルを改名しておいて、utf8 に変換したものを活用するようにしたい。
 
 ```zsh
 mv ~/tmp/40FUKUOK.CSV ~/tmp/40FUKUOK_org.CSV
