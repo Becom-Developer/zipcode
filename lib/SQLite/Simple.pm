@@ -1,4 +1,5 @@
 package SQLite::Simple;
+use 5.10.1;
 use strict;
 use warnings;
 use utf8;
@@ -8,6 +9,9 @@ use Time::Piece;
 use Text::CSV;
 use File::Path qw(make_path remove_tree);
 use File::Basename;
+
+our @ISA = qw();
+our $VERSION = '0.01';
 
 sub new {
     my $class = shift;
@@ -302,7 +306,50 @@ sub where_clause {
     my $where_clause = join " AND ", @{$where_q};
     return $where_clause;
 }
-
 1;
-
 __END__
+# Below is stub documentation for your module. You'd better edit it!
+
+=head1 NAME
+
+SQLite::Simple - Perl extension for blah blah blah
+
+=head1 SYNOPSIS
+
+  use SQLite::Simple;
+  blah blah blah
+
+=head1 DESCRIPTION
+
+Stub documentation for SQLite::Simple, created by h2xs. It looks like the
+author of the extension was negligent enough to leave the stub
+unedited.
+
+Blah blah blah.
+
+
+=head1 SEE ALSO
+
+Mention other useful documentation such as the documentation of
+related modules or operating system documentation (such as man pages
+in UNIX), or any relevant external documentation such as RFCs or
+standards.
+
+If you have a mailing list set up for your module, mention it here.
+
+If you have a web site set up for your module, mention it here.
+
+=head1 AUTHOR
+
+yk, E<lt>yk@localE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2022 by yk
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.34.1 or,
+at your option, any later version of Perl 5 you may have available.
+
+
+=cut

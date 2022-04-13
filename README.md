@@ -101,6 +101,12 @@ search    Search for zip code information
 
 ## Memo
 
+sqlite-simple についてはしばらくはダウンロード対応
+
+```zsh
+cp ~/Downloads/SQLite-Simple-main/lib/SQLite/Simple.pm ~/github/zsearch-api/lib/SQLite
+```
+
 ```text
 https://www.post.japanpost.jp/zipcode/dl/readme.html
 
