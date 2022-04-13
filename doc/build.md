@@ -5,7 +5,7 @@
 CLI
 
 ```text
-zserch build <method> [--params=<JSON>]
+zsearch build <method> [--params=<JSON>]
 
     <method>    Specify each method name
     --params    Json format with reference to request parameters
@@ -56,7 +56,7 @@ Response parameters
 CLI
 
 ```zsh
-zserch build init --params='{}'
+zsearch build init --params='{}'
 ```
 
 ### Build insert
@@ -94,7 +94,7 @@ Response parameters
 CLI
 
 ```zsh
-zserch build insert --params='{}'
+zsearch build insert --params='{}'
 ```
 
 ### Build dump
@@ -116,7 +116,7 @@ Response parameters
 CLI
 
 ```zsh
-zserch build dump
+zsearch build dump
 ```
 
 ### Build restore
@@ -138,5 +138,5 @@ Response parameters
 CLI
 
 ```zsh
-zserch build restore
+zsearch build restore
 ```

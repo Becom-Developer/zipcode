@@ -42,8 +42,8 @@ sub run {
 
     # Validate
     return $self->error->output(
-        "Unknown option specification: path, method, apikey")
-      if !$opt->{path} || !$opt->{method} || !$opt->{apikey};
+        "Unknown option specification: resource, method, apikey")
+      if !$opt->{resource} || !$opt->{method} || !$opt->{apikey};
     return $self->error->output("apikey is incorrect: $opt->{apikey}")
       if $apikey ne $opt->{apikey};
 
@@ -53,7 +53,7 @@ sub run {
         $self->render->all_items_json($output);
         return;
     }
-    return $self->error->output("The path is specified incorrectly");
+    return $self->error->output("The resource is specified incorrectly");
 }
 
 1;
