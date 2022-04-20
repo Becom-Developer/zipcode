@@ -31,8 +31,8 @@ sub _like {
     }
     return $self->error->commit("Zipcode not specified correctly:")
       if !@{$cols};
-    my $rows   = $self->valid_search( 'post', $q_params, { cond => 'LIKE%' } );
-    if (!$rows) {
+    my $rows = $self->valid_search( 'post', $q_params, { cond => 'LIKE%' } );
+    if ( !$rows ) {
         $rows = [];
     }
     my $count  = @{$rows};

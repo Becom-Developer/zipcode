@@ -189,6 +189,17 @@ subtest 'SearchSQL' => sub {
         my $message = $output->{message};
         like( $message, qr/検索件数: 2/, encode( 'UTF-8', $message ) );
     }
+
+    # 検索結果がないとき
+    {
+        my $test_params =
+          +{ code => '912', pref => '岡', city => '福', town => '吉', };
+        my $args   = { method => "like", params => $test_params };
+        my $output = $obj->run($args);
+        my $message = $output->{message};
+        like( $message, qr/検索件数: 0/, encode( 'UTF-8', $message ) );
+        is( @{ $output->{result} }, 0, 'result' );
+    }
 };
 
 # コマンド経由で実行
