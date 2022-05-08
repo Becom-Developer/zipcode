@@ -107,6 +107,34 @@ sqlite-simple についてはしばらくはダウンロード対応
 cp ~/Downloads/SQLite-Simple-main/lib/SQLite/Simple.pm ~/github/zsearch-api/lib/SQLite
 ```
 
+### Environment
+
+初動時の環境構築に関するメモ
+
+ignore
+
+```zsh
+echo 'local' >> .gitignore
+echo 'db' >> .gitignore
+```
+
+Perl
+
+```zsh
+echo '5.14.4' > .perl-version
+echo "requires 'DBD::SQLite', '==1.54';" >> cpanfile
+echo "requires 'Test::Trap';" >> cpanfile
+echo "requires 'Text::CSV', '2.01';" >> cpanfile
+```
+
+Module
+
+```zsh
+curl -L https://cpanmin.us/ -o cpanm
+chmod +x cpanm
+./cpanm -l ./local --installdeps .
+```
+
 ```text
 https://www.post.japanpost.jp/zipcode/dl/readme.html
 
@@ -129,7 +157,7 @@ update_reason -- 変更理由
      2: 住居表示の実施, 3: 区画整理, 4: 郵便区調整等, 5: 訂正, 6: 廃止)
 ```
 
-## Data
+### Data
 
 郵便番号の元データについて
 
