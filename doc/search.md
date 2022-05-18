@@ -44,20 +44,26 @@ like    Ambiguous search
 Request parameters
 
 ```json
-{"code":"812","pref":"福岡","city":"福岡","town":"吉"}
+{ "zipcode": "812", "pref": "福岡", "city": "福岡", "town": "吉" }
 ```
 
 or
 
 ```json
-{"code":"812","pref":"福岡","city":"福岡","town":"吉","output":"simple"}
+{
+  "zipcode": "812",
+  "pref": "福岡",
+  "city": "福岡",
+  "town": "吉",
+  "output": "simple"
+}
 ```
 
 Response parameters
 
 ```json
 {
-  "result": [
+  "data": [
     {
       "created_ts": "2022-02-17 17:07:47",
       "town_kana": "ヨシヅカ",
@@ -81,7 +87,9 @@ Response parameters
     }
     // { ... }
   ],
-  "message": "検索件数: 2"
+  "message": "検索件数: 2",
+  "version": "2022-04-28",
+  "count": 2
 }
 ```
 

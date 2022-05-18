@@ -99,11 +99,12 @@ subtest 'Framework Build' => sub {
                         'town',          'double_zipcode',
                         'town_display',  'city_block_display',
                         'double_town',   'update_zipcode',
-                        'update_reason', 'deleted',
-                        'created_ts',    'modified_ts',
+                        'update_reason', 'version',
+                        'deleted',       'created_ts',
+                        'modified_ts',
                     ],
                     time_stamp => [ 'created_ts', 'modified_ts', ],
-                    rewrite    => { deleted => 0 },
+                    rewrite    => { version => "2022-04-28", deleted => 0 },
                 }
             }
         );
@@ -146,7 +147,8 @@ subtest 'Script' => sub {
 
 subtest 'SearchSQL' => sub {
     new_ok('Zsearch::Build')->start( { method => 'init' } );
-    my $csv = File::Spec->catfile( $FindBin::RealBin, '40FUKUOK.CSV' );
+    my $csv          = File::Spec->catfile( $FindBin::RealBin, '40FUKUOK.CSV' );
+    my $test_version = '2022-04-28';
     new_ok('Zsearch::Build')->start(
         {
             method => 'insert',
@@ -161,11 +163,12 @@ subtest 'SearchSQL' => sub {
                     'town',          'double_zipcode',
                     'town_display',  'city_block_display',
                     'double_town',   'update_zipcode',
-                    'update_reason', 'deleted',
-                    'created_ts',    'modified_ts',
+                    'update_reason', 'version',
+                    'deleted',       'created_ts',
+                    'modified_ts',
                 ],
                 time_stamp => [ 'created_ts', 'modified_ts', ],
-                rewrite    => { deleted => 0 },
+                rewrite    => { version => $test_version, deleted => 0 },
             }
         }
     );
@@ -173,17 +176,21 @@ subtest 'SearchSQL' => sub {
     my $msg = $obj->run()->{error}->{message};
     ok( $msg, 'error message' );
     {
-        my $test_params = +{ code => '8120041' };
+        my $test_params = +{ zipcode => '8120041' };
         my $args        = { method => "like", params => $test_params };
         my $output      = $obj->run($args);
-        my $message     = $output->{message};
+        my $message = $output->{message};
         like( $message, qr/検索件数: 1/, encode( 'UTF-8', $message ) );
-        my $zipcode = $output->{result}->[0]->{zipcode};
-        ok( $zipcode eq $test_params->{code}, "code: $zipcode" );
+        my $zipcode = $output->{data}->[0]->{zipcode};
+        ok( $zipcode eq $test_params->{zipcode}, "code: $zipcode" );
+        my $version = $output->{version};
+        is( $version, $test_version, "version" );
+        my $count = $output->{count};
+        is( $count, 1, "count" );
     }
     {
         my $test_params =
-          +{ code => '812', pref => '福岡', city => '福岡', town => '吉', };
+          +{ zipcode => '812', pref => '福岡', city => '福岡', town => '吉', };
         my $args    = { method => "like", params => $test_params };
         my $output  = $obj->run($args);
         my $message = $output->{message};
@@ -193,12 +200,14 @@ subtest 'SearchSQL' => sub {
     # 検索結果がないとき
     {
         my $test_params =
-          +{ code => '912', pref => '岡', city => '福', town => '吉', };
-        my $args   = { method => "like", params => $test_params };
-        my $output = $obj->run($args);
+          +{ zipcode => '912', pref => '岡', city => '福', town => '吉', };
+        my $args    = { method => "like", params => $test_params };
+        my $output  = $obj->run($args);
         my $message = $output->{message};
         like( $message, qr/検索件数: 0/, encode( 'UTF-8', $message ) );
-        is( @{ $output->{result} }, 0, 'result' );
+        is( @{ $output->{data} }, 0, 'data' );
+        my $version = $output->{version};
+        is( $version, $test_version, "version" );
     }
 };
 
@@ -207,10 +216,10 @@ subtest 'SearchSQL' => sub {
 subtest 'SearchSQL From CLI' => sub {
     my $cli = new_ok('Zsearch::CLI');
     my $test_params =
-      +{ code => '812', pref => '福岡', city => '福岡', town => '吉', };
+      +{ zipcode => '812', pref => '福岡', city => '福岡', town => '吉', };
 
     # zsearch search like --params='{}'
-    # {"code":"812","pref":"福岡","city":"福岡","town":"吉"}
+    # {"zipcode":"812","pref":"福岡","city":"福岡","town":"吉"}
     {
         my @opt_params = ();
         push @opt_params, encode( 'UTF-8', qq{search} );
@@ -226,13 +235,13 @@ subtest 'SearchSQL From CLI' => sub {
     }
 
     # zsearch search like --params='{}'
-    # {"code":"","pref":"福岡","city":"福岡","town":"吉"}
+    # {"zipcode":"","pref":"福岡","city":"福岡","town":"吉"}
     {
         my @opt_params = ();
         push @opt_params, encode( 'UTF-8', qq{search} );
         push @opt_params, encode( 'UTF-8', qq{like} );
         my $none_code = { %{$test_params} };
-        $none_code->{code} = "";
+        $none_code->{zipcode} = "";
         my $bytes  = encode_json($none_code);
         my $params = encode( 'UTF-8', qq{--params=} );
         my $opt    = $params . $bytes;
@@ -244,7 +253,7 @@ subtest 'SearchSQL From CLI' => sub {
     }
 
     # zsearch search like --params='{}'
-    # {"code":"812","pref":"福岡","city":"福岡","town":"吉","output":"simple"}
+    # {"zipcode":"812","pref":"福岡","city":"福岡","town":"吉","output":"simple"}
     {
         my @opt_params = ();
         push @opt_params, encode( 'UTF-8', qq{search} );
@@ -285,11 +294,11 @@ search
 {"apikey":"becom","path":"search","method":"like","params":{}}
 
 search params example
-{"code":"812","town":"吉","pref":"福岡","city":"福岡"}
+{"zipcode":"812","town":"吉","pref":"福岡","city":"福岡"}
 
 like search example
 curl 'http://localhost:8000/cgi-bin/zipcode.cgi' \
 --verbose \
 --header 'Content-Type: application/json' \
 --header 'accept: application/json' \
---data-binary '{"apikey":"becom","path":"search","method":"like","params":{"code":"812","town":"吉","pref":"福岡","city":"福岡"}}'
+--data-binary '{"apikey":"becom","path":"search","method":"like","params":{"zipcode":"812","town":"吉","pref":"福岡","city":"福岡"}}'

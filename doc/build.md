@@ -44,13 +44,13 @@ or
 実行時に任意のファイル名を指定する場合
 
 ```json
-{"name":"sample-stg.db"}
+{ "name": "sample-stg.db" }
 ```
 
 Response parameters
 
 ```json
-{"message":"build success sample.db"}
+{ "message": "build success sample.db" }
 ```
 
 CLI
@@ -70,25 +70,35 @@ Request parameters
   "csv": "/full/path/sample.csv",
   "table": "post",
   "cols": [
-    "local_code",    "zipcode_old",
-    "zipcode",       "pref_kana",
-    "city_kana",     "town_kana",
-    "pref",          "city",
-    "town",          "double_zipcode",
-    "town_display",  "city_block_display",
-    "double_town",   "update_zipcode",
-    "update_reason", "deleted",
-    "created_ts",    "modified_ts"
+    "local_code",
+    "zipcode_old",
+    "zipcode",
+    "pref_kana",
+    "city_kana",
+    "town_kana",
+    "pref",
+    "city",
+    "town",
+    "double_zipcode",
+    "town_display",
+    "city_block_display",
+    "double_town",
+    "update_zipcode",
+    "update_reason",
+    "version",
+    "deleted",
+    "created_ts",
+    "modified_ts"
   ],
-  "time_stamp": [ "created_ts", "modified_ts" ],
-  "rewrite": { "deleted": 0 }
+  "time_stamp": ["created_ts", "modified_ts"],
+  "rewrite": { "version": "2022-04-28", "deleted": 0 }
 }
 ```
 
 Response parameters
 
 ```json
-{"message":"insert success sample.csv"}
+{ "message": "insert success sample.csv" }
 ```
 
 CLI
@@ -110,7 +120,7 @@ Request parameters
 Response parameters
 
 ```json
-{"message":"dump success sample.dump"}
+{ "message": "dump success sample.dump" }
 ```
 
 CLI
@@ -132,7 +142,7 @@ Request parameters
 Response parameters
 
 ```json
-{"message":"restore success sample.db"}
+{ "message": "restore success sample.db" }
 ```
 
 CLI
