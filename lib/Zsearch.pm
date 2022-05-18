@@ -48,6 +48,13 @@ sub dump {
     return $d->Dump;
 }
 
+sub zipcode_version {
+    my ( $self, @args ) = @_;
+    my $row = $self->valid_single( 'post', { id => 1 } );
+    return '' if !$row;
+    return $row->{version};
+}
+
 sub valid_single {
     my ( $self, $table, $params ) = @_;
     my $q_params = +{ %{$params}, deleted => 0, };

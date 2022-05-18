@@ -176,14 +176,13 @@ subtest 'SearchSQL' => sub {
     my $msg = $obj->run()->{error}->{message};
     ok( $msg, 'error message' );
     {
-        my $test_params = +{ code => '8120041' };
+        my $test_params = +{ zipcode => '8120041' };
         my $args        = { method => "like", params => $test_params };
         my $output      = $obj->run($args);
-        warn $obj->dump($output);
         my $message = $output->{message};
         like( $message, qr/検索件数: 1/, encode( 'UTF-8', $message ) );
         my $zipcode = $output->{data}->[0]->{zipcode};
-        ok( $zipcode eq $test_params->{code}, "code: $zipcode" );
+        ok( $zipcode eq $test_params->{zipcode}, "code: $zipcode" );
         my $version = $output->{version};
         is( $version, $test_version, "version" );
         my $count = $output->{count};
@@ -191,7 +190,7 @@ subtest 'SearchSQL' => sub {
     }
     {
         my $test_params =
-          +{ code => '812', pref => '福岡', city => '福岡', town => '吉', };
+          +{ zipcode => '812', pref => '福岡', city => '福岡', town => '吉', };
         my $args    = { method => "like", params => $test_params };
         my $output  = $obj->run($args);
         my $message = $output->{message};
@@ -201,12 +200,14 @@ subtest 'SearchSQL' => sub {
     # 検索結果がないとき
     {
         my $test_params =
-          +{ code => '912', pref => '岡', city => '福', town => '吉', };
+          +{ zipcode => '912', pref => '岡', city => '福', town => '吉', };
         my $args    = { method => "like", params => $test_params };
         my $output  = $obj->run($args);
         my $message = $output->{message};
         like( $message, qr/検索件数: 0/, encode( 'UTF-8', $message ) );
         is( @{ $output->{data} }, 0, 'data' );
+        my $version = $output->{version};
+        is( $version, $test_version, "version" );
     }
 };
 
@@ -215,10 +216,10 @@ subtest 'SearchSQL' => sub {
 subtest 'SearchSQL From CLI' => sub {
     my $cli = new_ok('Zsearch::CLI');
     my $test_params =
-      +{ code => '812', pref => '福岡', city => '福岡', town => '吉', };
+      +{ zipcode => '812', pref => '福岡', city => '福岡', town => '吉', };
 
     # zsearch search like --params='{}'
-    # {"code":"812","pref":"福岡","city":"福岡","town":"吉"}
+    # {"zipcode":"812","pref":"福岡","city":"福岡","town":"吉"}
     {
         my @opt_params = ();
         push @opt_params, encode( 'UTF-8', qq{search} );
@@ -234,13 +235,13 @@ subtest 'SearchSQL From CLI' => sub {
     }
 
     # zsearch search like --params='{}'
-    # {"code":"","pref":"福岡","city":"福岡","town":"吉"}
+    # {"zipcode":"","pref":"福岡","city":"福岡","town":"吉"}
     {
         my @opt_params = ();
         push @opt_params, encode( 'UTF-8', qq{search} );
         push @opt_params, encode( 'UTF-8', qq{like} );
         my $none_code = { %{$test_params} };
-        $none_code->{code} = "";
+        $none_code->{zipcode} = "";
         my $bytes  = encode_json($none_code);
         my $params = encode( 'UTF-8', qq{--params=} );
         my $opt    = $params . $bytes;
@@ -252,7 +253,7 @@ subtest 'SearchSQL From CLI' => sub {
     }
 
     # zsearch search like --params='{}'
-    # {"code":"812","pref":"福岡","city":"福岡","town":"吉","output":"simple"}
+    # {"zipcode":"812","pref":"福岡","city":"福岡","town":"吉","output":"simple"}
     {
         my @opt_params = ();
         push @opt_params, encode( 'UTF-8', qq{search} );

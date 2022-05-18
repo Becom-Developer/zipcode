@@ -15,18 +15,15 @@ sub run {
 
 sub _like {
     my ( $self, @args ) = @_;
-    my $options = shift @args;
-    my $params  = $options->{params};
-    my $opts =
-      +{ code => 'zipcode', pref => 'pref', city => 'city', town => 'town' };
+    my $options  = shift @args;
+    my $params   = $options->{params};
     my $q_params = +{};
     my $cols     = [];
-    while ( my ( $key, $val ) = each %{$opts} ) {
-        if ( exists $params->{$key} ) {
-            $q_params->{$val} = $params->{$key};
-            if ( $params->{$key} ne '' ) {
-                push @{$cols}, $val;
-            }
+    for my $key ( 'zipcode', 'pref', 'city', 'town' ) {
+        next if !exists $params->{$key};
+        $q_params->{$key} = $params->{$key};
+        if ( $params->{$key} ne '' ) {
+            push @{$cols}, $key;
         }
     }
     return $self->error->commit("Zipcode not specified correctly:")
@@ -35,15 +32,11 @@ sub _like {
     if ( !$rows ) {
         $rows = [];
     }
-    my $count   = @{$rows};
-    my $version = '';
-    if ( my $row = $rows->[0] ) {
-        $version = $row->{version};
-    }
+    my $count  = @{$rows};
     my $output = +{
         message => "検索件数: $count",
         data    => $rows,
-        version => $version,
+        version => $self->zipcode_version(),
         count   => $count,
     };
     return $output;
