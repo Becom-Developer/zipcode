@@ -16,8 +16,8 @@ sub simple {
     my ( $self, @args ) = @_;
     my $params = shift @args;
     my $text   = '';
-    my $result = $params->{result};
-    for my $row ( @{$result} ) {
+    my $data   = $params->{data};
+    for my $row ( @{$data} ) {
         $text .= "$row->{zipcode} $row->{pref}$row->{city}$row->{town}\n";
     }
     $text .= $params->{message} . "\n";

@@ -147,7 +147,8 @@ subtest 'Script' => sub {
 
 subtest 'SearchSQL' => sub {
     new_ok('Zsearch::Build')->start( { method => 'init' } );
-    my $csv = File::Spec->catfile( $FindBin::RealBin, '40FUKUOK.CSV' );
+    my $csv          = File::Spec->catfile( $FindBin::RealBin, '40FUKUOK.CSV' );
+    my $test_version = '2022-04-28';
     new_ok('Zsearch::Build')->start(
         {
             method => 'insert',
@@ -162,11 +163,12 @@ subtest 'SearchSQL' => sub {
                     'town',          'double_zipcode',
                     'town_display',  'city_block_display',
                     'double_town',   'update_zipcode',
-                    'update_reason', 'deleted',
-                    'created_ts',    'modified_ts',
+                    'update_reason', 'version',
+                    'deleted',       'created_ts',
+                    'modified_ts',
                 ],
                 time_stamp => [ 'created_ts', 'modified_ts', ],
-                rewrite    => { deleted => 0 },
+                rewrite    => { version => $test_version, deleted => 0 },
             }
         }
     );
@@ -177,10 +179,15 @@ subtest 'SearchSQL' => sub {
         my $test_params = +{ code => '8120041' };
         my $args        = { method => "like", params => $test_params };
         my $output      = $obj->run($args);
-        my $message     = $output->{message};
+        warn $obj->dump($output);
+        my $message = $output->{message};
         like( $message, qr/検索件数: 1/, encode( 'UTF-8', $message ) );
-        my $zipcode = $output->{result}->[0]->{zipcode};
+        my $zipcode = $output->{data}->[0]->{zipcode};
         ok( $zipcode eq $test_params->{code}, "code: $zipcode" );
+        my $version = $output->{version};
+        is( $version, $test_version, "version" );
+        my $count = $output->{count};
+        is( $count, 1, "count" );
     }
     {
         my $test_params =
@@ -199,7 +206,7 @@ subtest 'SearchSQL' => sub {
         my $output  = $obj->run($args);
         my $message = $output->{message};
         like( $message, qr/検索件数: 0/, encode( 'UTF-8', $message ) );
-        is( @{ $output->{result} }, 0, 'result' );
+        is( @{ $output->{data} }, 0, 'data' );
     }
 };
 

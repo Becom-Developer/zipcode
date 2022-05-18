@@ -35,10 +35,16 @@ sub _like {
     if ( !$rows ) {
         $rows = [];
     }
-    my $count  = @{$rows};
+    my $count   = @{$rows};
+    my $version = '';
+    if ( my $row = $rows->[0] ) {
+        $version = $row->{version};
+    }
     my $output = +{
         message => "検索件数: $count",
-        result  => $rows,
+        data    => $rows,
+        version => $version,
+        count   => $count,
     };
     return $output;
 }
