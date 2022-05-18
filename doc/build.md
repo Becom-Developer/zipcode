@@ -150,7 +150,3 @@ CLI
 ```zsh
 zsearch build restore
 ```
-
-```
-
-```

@@ -99,11 +99,12 @@ subtest 'Framework Build' => sub {
                         'town',          'double_zipcode',
                         'town_display',  'city_block_display',
                         'double_town',   'update_zipcode',
-                        'update_reason', 'deleted',
-                        'created_ts',    'modified_ts',
+                        'update_reason', 'version',
+                        'deleted',       'created_ts',
+                        'modified_ts',
                     ],
                     time_stamp => [ 'created_ts', 'modified_ts', ],
-                    rewrite    => { deleted => 0 },
+                    rewrite    => { version => "2022-04-28", deleted => 0 },
                 }
             }
         );
@@ -194,8 +195,8 @@ subtest 'SearchSQL' => sub {
     {
         my $test_params =
           +{ code => '912', pref => '岡', city => '福', town => '吉', };
-        my $args   = { method => "like", params => $test_params };
-        my $output = $obj->run($args);
+        my $args    = { method => "like", params => $test_params };
+        my $output  = $obj->run($args);
         my $message = $output->{message};
         like( $message, qr/検索件数: 0/, encode( 'UTF-8', $message ) );
         is( @{ $output->{result} }, 0, 'result' );
@@ -285,11 +286,11 @@ search
 {"apikey":"becom","path":"search","method":"like","params":{}}
 
 search params example
-{"code":"812","town":"吉","pref":"福岡","city":"福岡"}
+{"zipcode":"812","town":"吉","pref":"福岡","city":"福岡"}
 
 like search example
 curl 'http://localhost:8000/cgi-bin/zipcode.cgi' \
 --verbose \
 --header 'Content-Type: application/json' \
 --header 'accept: application/json' \
---data-binary '{"apikey":"becom","path":"search","method":"like","params":{"code":"812","town":"吉","pref":"福岡","city":"福岡"}}'
+--data-binary '{"apikey":"becom","path":"search","method":"like","params":{"zipcode":"812","town":"吉","pref":"福岡","city":"福岡"}}'
