@@ -179,7 +179,7 @@ subtest 'SearchSQL' => sub {
         my $test_params = +{ zipcode => '8120041' };
         my $args        = { method => "like", params => $test_params };
         my $output      = $obj->run($args);
-        my $message = $output->{message};
+        my $message     = $output->{message};
         like( $message, qr/検索件数: 1/, encode( 'UTF-8', $message ) );
         my $zipcode = $output->{data}->[0]->{zipcode};
         ok( $zipcode eq $test_params->{zipcode}, "code: $zipcode" );
@@ -195,6 +195,16 @@ subtest 'SearchSQL' => sub {
         my $output  = $obj->run($args);
         my $message = $output->{message};
         like( $message, qr/検索件数: 2/, encode( 'UTF-8', $message ) );
+    }
+
+    # list
+    {
+        my $test_params = +{ zipcode => '8120041', output => 'list' };
+        my $args        = { method => "like", params => $test_params };
+        my $output      = $obj->run($args);
+        warn $obj->dump($output);
+        # my $message     = $output->{message};
+        # like( $message, qr/検索件数: 2/, encode( 'UTF-8', $message ) );
     }
 
     # 検索結果がないとき
