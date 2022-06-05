@@ -87,7 +87,7 @@ package Error {
         return { error => { message => $msg } };
     }
 
-    # {"error":{"message":"Notspecifiedcorrectly"}}
+    # {"error":{"message":"Not specified correctly"}}
 }
 
 sub db {
