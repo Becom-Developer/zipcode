@@ -5,8 +5,8 @@ use warnings;
 use utf8;
 use CGI;
 use JSON::PP;
-use Zsearch::SearchSQL;
-sub sql { Zsearch::SearchSQL->new; }
+use Zsearch::Render;
+sub render { return Zsearch::Render->new; }
 
 sub run {
     my ( $self, @args ) = @_;

@@ -6,6 +6,7 @@ use Data::Dumper;
 use FindBin;
 use lib ( "$FindBin::RealBin/../lib", "$FindBin::RealBin/../local/lib/perl5" );
 use Test::Trap qw/:die :output(systemsafe)/;
+use Zsearch;
 use Zsearch::CLI;
 use Zsearch::CGI;
 use Encode qw(encode decode);
@@ -29,14 +30,15 @@ subtest 'File' => sub {
 subtest 'Class and Method' => sub {
     my @methods = qw{new};
     can_ok( new_ok('Zsearch'),            (@methods) );
-    can_ok( new_ok('Zsearch::Build'),     (@methods) );
-    can_ok( new_ok('Zsearch::CGI'),       (@methods) );
     can_ok( new_ok('Zsearch::CLI'),       (@methods) );
+    can_ok( new_ok('Zsearch::Error'),     ( qw{output commit}, @methods ) );
+    can_ok( new_ok('Zsearch::Build'),     (@methods) );
     can_ok( new_ok('Zsearch::SearchSQL'), (@methods) );
+    can_ok( new_ok('Zsearch::CGI'),       (@methods) );
 };
 
 subtest 'Framework Render' => sub {
-    my $obj   = new_ok('Zsearch')->render;
+    my $obj = new_ok('Zsearch::Render');
     my $chars = '日本語';
     subtest 'raw' => sub {
         my $bytes = encode( 'UTF-8', $chars );
@@ -52,7 +54,7 @@ subtest 'Framework Render' => sub {
 };
 
 subtest 'Framework Error' => sub {
-    my $obj   = new_ok('Zsearch')->error;
+    my $obj = new_ok('Zsearch::Error');
     my $chars = '予期せぬエラー';
     subtest 'commit' => sub {
         my $hash = $obj->commit($chars);
