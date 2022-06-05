@@ -6,11 +6,8 @@ use utf8;
 use Encode qw(encode decode);
 use Getopt::Long qw(GetOptionsFromArray);
 use JSON::PP;
-use Zsearch::SearchSQL;
-use Zsearch::Build;
-
-sub sql   { Zsearch::SearchSQL->new; }
-sub build { Zsearch::Build->new; }
+use Zsearch::Render;
+sub render { return Zsearch::Render->new; }
 
 sub run {
     my ( $self, @args ) = @_;
