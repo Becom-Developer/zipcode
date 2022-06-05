@@ -4,7 +4,7 @@
 
 ## Setup
 
-事前に`plenv`を使えるようにしておき指定バージョンのPerlを使えるように
+事前に`plenv`を使えるようにしておき指定バージョンの`Perl`を使えるように
 
 git clone にてソースコードを配置後プロジェクト配下にてモジュールをインストール
 
@@ -133,6 +133,32 @@ Module
 curl -L https://cpanmin.us/ -o cpanm
 chmod +x cpanm
 ./cpanm -l ./local --installdeps .
+```
+
+公開環境(stg)
+
+```sh
+ssh becom2022@becom2022.sakura.ne.jp
+cd ~/www/
+mkdir ~/www/zsearch-stg-api
+cd ~/www/zsearch-stg-api
+git clone git@github.com:Becom-Developer/zsearch-api.git
+mv -n zsearch-api/* .
+mv -n zsearch-api/.[^\.]* .
+rm -r zsearch-api
+./cpanm -l ./local --installdeps .
+./script/zsearch build init --params='{}'
+./script/zsearch build restore
+```
+
+ローカル環境テスト
+
+```zsh
+curl 'https://zsearch-stg-api.becom.co.jp/index.cgi' \
+--verbose \
+--header 'Content-Type: application/json' \
+--header 'accept: application/json' \
+--data-binary '{"resource":"search","method":"like","apikey":"becom","params":{"zipcode":"8120041"}}'
 ```
 
 ```text
