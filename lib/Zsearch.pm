@@ -1,24 +1,94 @@
 package Zsearch;
+use 5.32.1;
 use strict;
 use warnings;
 use utf8;
 use FindBin;
 use File::Spec;
-use Time::Piece;
-use Data::Dumper;
-use Zsearch::Error;
-use Zsearch::Build;
-use Zsearch::SearchSQL;
 use SQLite::Simple;
 
 # class
-sub new   { bless {}, shift; }
-sub error { Zsearch::Error->new; }
-sub build { Zsearch::Build->new; }
-sub sql   { Zsearch::SearchSQL->new; }
+sub new    { bless {}, shift; }
+sub render { Render->new; }
+sub error  { Error->new; }
 
-# helper
-sub time_stamp { localtime->datetime( 'T' => ' ' ); }
+# helper shortcut
+sub time_stamp { Base->new->time_stamp; }
+sub dump       { Base->new->dump(@_); }
+
+package Helper {
+    use Time::Piece;
+    use Data::Dumper;
+
+    sub dump {
+        my $d = Data::Dumper->new( [ shift @_ ] );
+        return $d->Dump;
+    }
+    sub time_stamp { localtime->datetime( 'T' => ' ' ); }
+}
+
+package Base {
+    sub new { bless {}, shift; }
+
+    sub dump {
+        my ( $self, @args ) = @_;
+        return Helper::dump(@args);
+    }
+    sub time_stamp { Helper::time_stamp; }
+}
+
+package Render {
+    use parent 'Base';
+    use Encode qw(encode decode);
+    use JSON::PP;
+
+    sub raw {
+        my ( $self, @args ) = @_;
+        print encode( 'UTF-8', shift @args );
+        return;
+    }
+
+    sub simple {
+        my ( $self, @args ) = @_;
+        my $params = shift @args;
+        my $text   = '';
+        my $data   = $params->{data};
+        for my $row ( @{$data} ) {
+            $text .= "$row->{zipcode} $row->{pref}$row->{city}$row->{town}\n";
+        }
+        $text .= $params->{message} . "\n";
+        print encode( 'UTF-8', $text );
+        return;
+    }
+
+    sub all_items_json {
+        my ( $self, @args ) = @_;
+        my $params = shift @args;
+        print encode_json($params);
+        print "\n";
+        return;
+    }
+}
+
+package Error {
+    use parent 'Base';
+    sub render { Render->new; }
+
+    sub output {
+        my ( $self, @args ) = @_;
+        my $params = $self->commit( shift @args );
+        $self->render->all_items_json($params);
+        return;
+    }
+
+    sub commit {
+        my ( $self, @args ) = @_;
+        my $msg = shift @args;
+        return { error => { message => $msg } };
+    }
+
+    # {"error":{"message":"Not specified correctly"}}
+}
 
 sub db {
     my ( $self, $args ) = @_;
@@ -40,12 +110,6 @@ sub is_test_mode {
     return if !$ENV{"ZSEARCH_MODE"};
     return if $ENV{"ZSEARCH_MODE"} ne 'test';
     return 1;
-}
-
-sub dump {
-    my ( $self, @args ) = @_;
-    my $d = Data::Dumper->new( [ shift @args ] );
-    return $d->Dump;
 }
 
 sub zipcode_version {
