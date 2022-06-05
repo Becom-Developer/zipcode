@@ -6,7 +6,6 @@ use Data::Dumper;
 use FindBin;
 use lib ( "$FindBin::RealBin/../lib", "$FindBin::RealBin/../local/lib/perl5" );
 use Test::Trap qw/:die :output(systemsafe)/;
-use Zsearch;
 use Zsearch::CLI;
 use Zsearch::CGI;
 use Encode qw(encode decode);
@@ -30,15 +29,14 @@ subtest 'File' => sub {
 subtest 'Class and Method' => sub {
     my @methods = qw{new};
     can_ok( new_ok('Zsearch'),            (@methods) );
-    can_ok( new_ok('Zsearch::CLI'),       (@methods) );
-    can_ok( new_ok('Zsearch::Error'),     ( qw{output commit}, @methods ) );
     can_ok( new_ok('Zsearch::Build'),     (@methods) );
-    can_ok( new_ok('Zsearch::SearchSQL'), (@methods) );
     can_ok( new_ok('Zsearch::CGI'),       (@methods) );
+    can_ok( new_ok('Zsearch::CLI'),       (@methods) );
+    can_ok( new_ok('Zsearch::SearchSQL'), (@methods) );
 };
 
 subtest 'Framework Render' => sub {
-    my $obj   = new_ok('Zsearch::Render');
+    my $obj   = new_ok('Zsearch')->render;
     my $chars = '日本語';
     subtest 'raw' => sub {
         my $bytes = encode( 'UTF-8', $chars );
@@ -54,7 +52,7 @@ subtest 'Framework Render' => sub {
 };
 
 subtest 'Framework Error' => sub {
-    my $obj   = new_ok('Zsearch::Error');
+    my $obj   = new_ok('Zsearch')->error;
     my $chars = '予期せぬエラー';
     subtest 'commit' => sub {
         my $hash = $obj->commit($chars);
@@ -292,7 +290,7 @@ local server example
 python3 -m http.server 8000 --cgi
 
 local client example
-curl 'http://localhost:8000/cgi-bin/zipcode.cgi' \
+curl 'http://localhost:8000/cgi-bin/index.cgi' \
 --verbose \
 --header 'Content-Type: application/json' \
 --header 'accept: application/json' \
@@ -300,15 +298,4 @@ curl 'http://localhost:8000/cgi-bin/zipcode.cgi' \
 
 data-binary example
 
-search
-{"apikey":"becom","path":"search","method":"like","params":{}}
-
-search params example
-{"zipcode":"812","town":"吉","pref":"福岡","city":"福岡"}
-
-like search example
-curl 'http://localhost:8000/cgi-bin/zipcode.cgi' \
---verbose \
---header 'Content-Type: application/json' \
---header 'accept: application/json' \
---data-binary '{"apikey":"becom","path":"search","method":"like","params":{"zipcode":"812","town":"吉","pref":"福岡","city":"福岡"}}'
+see doc/search.md
