@@ -5,10 +5,12 @@ use warnings;
 use utf8;
 use CGI;
 use JSON::PP;
-use Zsearch::Render;
-sub render { return Zsearch::Render->new; }
+use Zsearch::SearchSQL;
+sub sql { Zsearch::SearchSQL->new; }
 
 sub run {
+    warn 'Zsearch::CGI----1';
+
     my ( $self, @args ) = @_;
     my $apikey = 'becom';
 
@@ -39,6 +41,7 @@ sub run {
     if ($postdata) {
         $opt = decode_json($postdata);
     }
+    warn 'Zsearch::CGI----2';
 
     # Validate
     return $self->error->output(
@@ -46,6 +49,7 @@ sub run {
       if !$opt->{resource} || !$opt->{method} || !$opt->{apikey};
     return $self->error->output("apikey is incorrect: $opt->{apikey}")
       if $apikey ne $opt->{apikey};
+    warn 'Zsearch::CGI----3';
 
     # Routing
     if ( $opt->{resource} eq 'search' ) {
@@ -53,6 +57,8 @@ sub run {
         $self->render->all_items_json($output);
         return;
     }
+        warn 'Zsearch::CGI----4';
+
     return $self->error->output("The resource is specified incorrectly");
 }
 
