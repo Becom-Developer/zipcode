@@ -1,16 +1,16 @@
 package Zsearch::CGI;
-use parent 'Zsearch';
 use strict;
 use warnings;
 use utf8;
 use CGI;
 use JSON::PP;
-# use Encode qw(encode decode);
 use Zsearch::SearchSQL;
+use Zsearch;
 
 sub sql { Zsearch::SearchSQL->new; }
-
-# sub new { bless {}, shift; }
+sub new { bless {}, shift; }
+sub error  { Zsearch->new->error; }
+sub render { Zsearch->new->render; }
 
 sub run {
     warn 'Zsearch::CGI----1';
@@ -22,14 +22,6 @@ sub run {
 
     # http header
     my $q = CGI->new();
-
-    # my $params = { test => 'error' };
-    # print encode_json($params);
-    # print "\n";
-    # return;
-
-    # print 'test--------';
-    # return;
 
     # cookieでapikeyを取得した場合はこちらで判定
     # apikeyのdbができてから実装
