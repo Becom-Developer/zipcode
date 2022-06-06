@@ -37,9 +37,15 @@ package Base {
 }
 
 package Render {
-    use parent 'Base';
     use Encode qw(encode decode);
     use JSON::PP;
+    sub new { bless {}, shift; }
+
+    sub dump {
+        my ( $self, @args ) = @_;
+        return Helper::dump(@args);
+    }
+    sub time_stamp { Helper::time_stamp; }
 
     sub raw {
         my ( $self, @args ) = @_;
@@ -70,8 +76,14 @@ package Render {
 }
 
 package Error {
-    use parent 'Base';
-    sub render { Render->new; }
+    sub new { bless {}, shift; }
+
+    sub dump {
+        my ( $self, @args ) = @_;
+        return Helper::dump(@args);
+    }
+    sub time_stamp { Helper::time_stamp; }
+    sub render     { Render->new; }
 
     sub output {
         my ( $self, @args ) = @_;
