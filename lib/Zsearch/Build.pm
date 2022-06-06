@@ -2,17 +2,18 @@ package Zsearch::Build;
 use strict;
 use warnings;
 use utf8;
-use File::Spec;
-use Zsearch;
 use Zsearch::Error;
 use Zsearch::Render;
+use Zsearch::DB;
+sub new { bless {}, shift; }
 
-sub error        { Zsearch::Error->new; }
-sub render       { Zsearch::Render->new; }
-sub db           { my ( $self, @args ) = @_; Zsearch->new->db(@args); }
-sub new          { bless {}, shift; }
-sub homedb       { Zsearch->new->homedb; }
-sub db_file_path { Zsearch->new->db_file_path; }
+sub error  { Zsearch::Error->new; }
+sub render { Zsearch::Render->new; }
+sub DB     { Zsearch::DB->new; }
+
+sub db           { my ( $self, @args ) = @_; DB->db(@args); }
+sub homedb       { DB->homedb; }
+sub db_file_path { DB->db_file_path; }
 
 sub start {
     my ( $self, @args ) = @_;

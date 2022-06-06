@@ -2,19 +2,18 @@ package Zsearch::SearchSQL;
 use strict;
 use warnings;
 use utf8;
-use Zsearch;
-sub error  { Zsearch->new->error; }
-sub render { Zsearch->new->render; }
-sub new    { bless {}, shift; }
-
-sub valid_search {
-    my ( $self, @args ) = @_;
-    Zsearch->new->valid_search(@args);
-}
+use Zsearch::Error;
+use Zsearch::Render;
+use Zsearch::DB;
+sub new          { bless {}, shift; }
+sub error        { Zsearch::Error->new; }
+sub render       { Zsearch::Render->new; }
+sub DB           { Zsearch::DB->new; }
+sub valid_search { my ( $self, @args ) = @_; return DB->valid_search(@args); }
 
 sub zipcode_version {
     my ( $self, @args ) = @_;
-    Zsearch->new->zipcode_version(@args);
+    return DB->zipcode_version(@args);
 }
 
 sub run {

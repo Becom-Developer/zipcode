@@ -3,8 +3,7 @@ use strict;
 use warnings;
 use utf8;
 use Zsearch::Render;
-sub new { bless {}, shift; }
-
+sub new    { bless {}, shift; }
 sub render { Zsearch::Render->new; }
 
 sub output {

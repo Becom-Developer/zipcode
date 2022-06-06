@@ -4,7 +4,6 @@ use warnings;
 use utf8;
 use Encode qw(encode decode);
 use JSON::PP;
-
 sub new { bless {}, shift; }
 
 sub raw {
