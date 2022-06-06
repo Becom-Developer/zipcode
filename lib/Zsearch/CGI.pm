@@ -5,12 +5,13 @@ use utf8;
 use CGI;
 use JSON::PP;
 use Zsearch::SearchSQL;
-use Zsearch;
+use Zsearch::Error;
+use Zsearch::Render;
 
-sub sql { Zsearch::SearchSQL->new; }
-sub new { bless {}, shift; }
-sub error  { Zsearch->new->error; }
-sub render { Zsearch->new->render; }
+sub new    { bless {}, shift; }
+sub sql    { Zsearch::SearchSQL->new; }
+sub error  { Zsearch::Error->new; }
+sub render { Zsearch::Render->new; }
 
 sub run {
     warn 'Zsearch::CGI----1';

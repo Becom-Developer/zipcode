@@ -4,8 +4,11 @@ use warnings;
 use utf8;
 use File::Spec;
 use Zsearch;
-sub error        { Zsearch->new->error; }
-sub render       { Zsearch->new->render; }
+use Zsearch::Error;
+use Zsearch::Render;
+
+sub error        { Zsearch::Error->new; }
+sub render       { Zsearch::Render->new; }
 sub db           { my ( $self, @args ) = @_; Zsearch->new->db(@args); }
 sub new          { bless {}, shift; }
 sub homedb       { Zsearch->new->homedb; }
