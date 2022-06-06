@@ -5,7 +5,6 @@ use warnings;
 use utf8;
 use CGI;
 use JSON::PP;
-use JSON::PP;
 use Encode qw(encode decode);
 # use Zsearch::SearchSQL;
 
@@ -14,6 +13,8 @@ sub new { bless {}, shift; }
 
 sub run {
     warn 'Zsearch::CGI----1';
+    warn "$CGI::VERSION";
+    warn 'Zsearch::CGI----2';
 
     my ( $self, @args ) = @_;
     my $apikey = 'becom';
