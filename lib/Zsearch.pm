@@ -2,21 +2,23 @@ package Zsearch;
 use strict;
 use warnings;
 use utf8;
-use Zsearch::Error;
-use Zsearch::CLI;
+use Zsearch::Build;
 use Zsearch::CGI;
-use Zsearch::Render;
-use Zsearch::Helper;
+use Zsearch::CLI;
 use Zsearch::DB;
-
-# class
+use Zsearch::Error;
+use Zsearch::Helper;
+use Zsearch::Render;
+use Zsearch::SearchSQL;
 sub new    { bless {}, shift; }
-sub render { Zsearch::Render->new; }
-sub error  { Zsearch::Error->new; }
-sub CLI    { Zsearch::CLI->new; }
+sub build  { Zsearch::Build->new; }
 sub CGI    { Zsearch::CGI->new; }
-sub helper { Zsearch::Helper->new; }
+sub CLI    { Zsearch::CLI->new; }
 sub DB     { Zsearch::DB->new; }
+sub error  { Zsearch::Error->new; }
+sub helper { Zsearch::Helper->new; }
+sub render { Zsearch::Render->new; }
+sub sql    { Zsearch::SearchSQL->new; }
 
 1;
 
