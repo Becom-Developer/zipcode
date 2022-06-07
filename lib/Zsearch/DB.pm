@@ -3,11 +3,9 @@ use strict;
 use warnings;
 use utf8;
 use SQLite::Simple;
-use Zsearch::Helper;
-
-# class
+use Pickup;
 sub new    { bless {}, shift; }
-sub helper { Zsearch::Helper->new; }
+sub helper { Pickup->new->helper; }
 
 # file
 sub home           { helper->home; }

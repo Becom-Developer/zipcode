@@ -7,6 +7,7 @@ use FindBin;
 use lib ( "$FindBin::RealBin/../lib", "$FindBin::RealBin/../local/lib/perl5" );
 use Test::Trap qw/:die :output(systemsafe)/;
 use Zsearch;
+use Pickup;
 use Encode qw(encode decode);
 use JSON::PP;
 use File::Temp qw/ tempfile tempdir /;
@@ -31,15 +32,15 @@ subtest 'Class and Method' => sub {
     can_ok( new_ok('Zsearch::CGI'),       (@methods) );
     can_ok( new_ok('Zsearch::CLI'),       (@methods) );
     can_ok( new_ok('Zsearch::DB'),        (@methods) );
-    can_ok( new_ok('Zsearch::Error'),     (@methods) );
-    can_ok( new_ok('Zsearch::Helper'),    (@methods) );
-    can_ok( new_ok('Zsearch::Render'),    (@methods) );
     can_ok( new_ok('Zsearch::SearchSQL'), (@methods) );
-    can_ok( new_ok('Zsearch'),            (@methods) );
+    can_ok( new_ok('Pickup'),             (@methods) );
+    can_ok( new_ok('Pickup::Error'),      (@methods) );
+    can_ok( new_ok('Pickup::Helper'),     (@methods) );
+    can_ok( new_ok('Pickup::Render'),     (@methods) );
 };
 
 subtest 'Framework Render' => sub {
-    my $obj   = new_ok('Zsearch::Render');
+    my $obj   = new_ok('Pickup::Render');
     my $chars = '日本語';
     subtest 'raw' => sub {
         my $bytes = encode( 'UTF-8', $chars );
@@ -55,7 +56,7 @@ subtest 'Framework Render' => sub {
 };
 
 subtest 'Framework Error' => sub {
-    my $obj   = new_ok('Zsearch::Error');
+    my $obj   = new_ok('Pickup::Error');
     my $chars = '予期せぬエラー';
     subtest 'commit' => sub {
         my $hash = $obj->commit($chars);

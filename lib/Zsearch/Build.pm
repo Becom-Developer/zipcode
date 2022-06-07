@@ -2,13 +2,11 @@ package Zsearch::Build;
 use strict;
 use warnings;
 use utf8;
-use Zsearch::Error;
-use Zsearch::Render;
+use Pickup;
 use Zsearch::DB;
-sub new { bless {}, shift; }
-
-sub error  { Zsearch::Error->new; }
-sub render { Zsearch::Render->new; }
+sub new    { bless {}, shift; }
+sub error  { Pickup->new->error; }
+sub render { Pickup->new->render; }
 sub DB     { Zsearch::DB->new; }
 
 sub db           { my ( $self, @args ) = @_; DB->db(@args); }

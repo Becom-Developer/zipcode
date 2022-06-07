@@ -1,10 +1,10 @@
-package Zsearch::Error;
+package Pickup::Error;
+use parent 'Pickup::Base';
 use strict;
 use warnings;
 use utf8;
-use Zsearch::Render;
-sub new    { bless {}, shift; }
-sub render { Zsearch::Render->new; }
+use Pickup::Render;
+sub render { Pickup::Render->new; }
 
 sub output {
     my ( $self, @args ) = @_;

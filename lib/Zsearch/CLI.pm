@@ -7,13 +7,12 @@ use Getopt::Long qw(GetOptionsFromArray);
 use JSON::PP;
 use Zsearch::SearchSQL;
 use Zsearch::Build;
-use Zsearch::Error;
-use Zsearch::Render;
+use Pickup;
 sub new    { bless {}, shift; }
 sub sql    { Zsearch::SearchSQL->new; }
 sub build  { Zsearch::Build->new; }
-sub error  { Zsearch::Error->new; }
-sub render { Zsearch::Render->new; }
+sub error  { Pickup->new->error; }
+sub render { Pickup->new->render; }
 
 sub run {
     my ( $self, @args ) = @_;

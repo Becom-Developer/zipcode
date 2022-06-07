@@ -1,4 +1,5 @@
-package Zsearch::Helper;
+package Pickup::Helper;
+use parent 'Pickup::Base';
 use strict;
 use warnings;
 use utf8;
@@ -6,8 +7,6 @@ use FindBin;
 use File::Spec;
 use Time::Piece;
 use Data::Dumper;
-
-sub new { bless {}, shift; }
 
 sub dump {
     my ( $self, @args ) = @_;
