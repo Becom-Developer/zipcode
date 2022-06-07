@@ -39,40 +39,6 @@ subtest 'Class and Method' => sub {
     can_ok( new_ok('Pickup::Render'),     (@methods) );
 };
 
-subtest 'Framework Render' => sub {
-    my $obj   = new_ok('Pickup::Render');
-    my $chars = '日本語';
-    subtest 'raw' => sub {
-        my $bytes = encode( 'UTF-8', $chars );
-        trap { $obj->raw($chars) };
-        like( $trap->stdout, qr/$bytes/, 'render method raw' );
-    };
-    subtest 'all_items_json' => sub {
-        my $hash  = { jang => $chars };
-        my $bytes = encode_json($hash);
-        trap { $obj->all_items_json($hash) };
-        like( $trap->stdout, qr/$bytes/, 'render method all_items_json' );
-    };
-};
-
-subtest 'Framework Error' => sub {
-    my $obj   = new_ok('Pickup::Error');
-    my $chars = '予期せぬエラー';
-    subtest 'commit' => sub {
-        my $hash = $obj->commit($chars);
-        like( $hash->{error}->{message}, qr/$chars/, "error commit" );
-    };
-    subtest 'output' => sub {
-        my $hash  = $obj->commit($chars);
-        my $bytes = encode_json($hash);
-        trap { $obj->output($chars); };
-        my $commit_chars = decode( 'utf-8', $bytes );
-        my $stdout_chars = decode( 'utf-8', $trap->stdout );
-        chomp($stdout_chars);
-        is( $commit_chars, $stdout_chars, 'error output' );
-    };
-};
-
 subtest 'Framework Build' => sub {
     my $obj = new_ok('Zsearch::Build');
     my $msg = $obj->start()->{error}->{message};
