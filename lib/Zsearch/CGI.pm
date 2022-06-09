@@ -12,10 +12,6 @@ sub error  { Pickup->new->error; }
 sub render { Pickup->new->render; }
 
 sub run {
-    warn 'Zsearch::CGI----1';
-    warn "$CGI::VERSION";
-    warn 'Zsearch::CGI----2';
-
     my ( $self, @args ) = @_;
     my $apikey = 'becom';
 
@@ -46,7 +42,6 @@ sub run {
     if ($postdata) {
         $opt = decode_json($postdata);
     }
-    warn 'Zsearch::CGI----3';
 
     # Validate
     return $self->error->output(
@@ -54,7 +49,6 @@ sub run {
       if !$opt->{resource} || !$opt->{method} || !$opt->{apikey};
     return $self->error->output("apikey is incorrect: $opt->{apikey}")
       if $apikey ne $opt->{apikey};
-    warn 'Zsearch::CGI----4';
 
     # Routing
     if ( $opt->{resource} eq 'search' ) {
@@ -62,8 +56,6 @@ sub run {
         $self->render->all_items_json($output);
         return;
     }
-    warn 'Zsearch::CGI----5';
-
     return $self->error->output("The resource is specified incorrectly");
 }
 
