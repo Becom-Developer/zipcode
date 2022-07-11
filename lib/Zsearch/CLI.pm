@@ -1,13 +1,18 @@
 package Zsearch::CLI;
-use parent 'Zsearch';
 use strict;
 use warnings;
 use utf8;
 use Encode qw(encode decode);
 use Getopt::Long qw(GetOptionsFromArray);
 use JSON::PP;
-use Zsearch::Render;
-sub render { return Zsearch::Render->new; }
+use Zsearch::SearchSQL;
+use Zsearch::Build;
+use Pickup;
+sub new    { bless {}, shift; }
+sub sql    { Zsearch::SearchSQL->new; }
+sub build  { Zsearch::Build->new; }
+sub error  { Pickup->new->error; }
+sub render { Pickup->new->render; }
 
 sub run {
     my ( $self, @args ) = @_;

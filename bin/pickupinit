@@ -1,0 +1,438 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use utf8;
+use FindBin;
+use File::Path qw(make_path remove_tree);
+use File::Spec;
+
+# my $class_name = 'App';
+# my $file_name  = 'app';
+my $class_name = 'Zsearch';
+my $file_name  = 'zsearch';
+
+# backup
+init(
+    {
+        dir   => ['backup'],
+        files => [ { name => [ 'backup', "$file_name.dump" ], text => '', }, ],
+    }
+);
+
+# cgi-bin/index.cgi
+my $index_cgi = <<"END_TEXT";
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use utf8;
+use FindBin;
+use lib ( "\$FindBin::RealBin/../lib", "\$FindBin::RealBin/../local/lib/perl5" );
+use $class_name;
+$class_name->new->CGI->run;
+
+__END__
+END_TEXT
+
+# cgi-bin/sample.cgi
+my $sample_cgi = <<'END_TEXT';
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use utf8;
+my $html = <<"END_HTML";
+Content-Type: text/html; charset=utf-8
+
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>hello</title>
+  </head>
+  <body>
+    <h1>hello</h1>
+  </body>
+</html>
+END_HTML
+
+print $html;
+
+__END__
+END_TEXT
+
+init(
+    {
+        dir   => ['cgi-bin'],
+        files => [
+            { name => [ 'cgi-bin', 'index.cgi' ],  text => $index_cgi, },
+            { name => [ 'cgi-bin', 'sample.cgi' ], text => $sample_cgi, }
+        ],
+    }
+);
+
+# db
+init(
+    {
+        dir   => ['db'],
+        files => [ { name => [ 'db', "$file_name.db" ], text => '', }, ],
+    }
+);
+
+# doc/sample.md
+init(
+    {
+        dir   => ['doc'],
+        files => [ { name => [ 'doc', "$file_name.md" ], text => '', }, ],
+    }
+);
+
+# lib/App.pm
+my $app_pm = <<"END_TEXT";
+package $class_name;
+use strict;
+use warnings;
+use utf8;
+use $class_name\::CGI;
+use $class_name\::CLI;
+use $class_name\::DB;
+use Pickup;
+sub new    { bless {}, shift; }
+sub CGI    { $class_name\::CGI->new; }
+sub CLI    { $class_name\::CLI->new; }
+sub DB     { $class_name\::DB->new; }
+sub error  { Pickup->new->error; }
+sub helper { Pickup->new->helper; }
+sub render { Pickup->new->render; }
+
+1;
+
+END_TEXT
+
+# lib/App/CGI.pm, CLI.pm, DB.pm
+my $cgi_pm = <<"END_TEXT";
+package $class_name\::CGI;
+use strict;
+use warnings;
+use utf8;
+use CGI;
+use JSON::PP;
+use Pickup;
+sub new    { bless {}, shift; }
+sub error  { Pickup->new->error; }
+sub render { Pickup->new->render; }
+
+sub run {
+    my ( \$self, \@args ) = \@_;
+    my \$apikey = 'becom';
+
+    # http header
+    my \$q = CGI->new();
+
+    # cookieでapikeyを取得した場合はこちらで判定
+    # apikeyのdbができてから実装
+    # my \$cookie_apikey = \$query->cookie('apikey');
+
+    my \$origin  = \$ENV{HTTP_ORIGIN};
+    my \@headers = (
+        -type    => 'application/json',
+        -charset => 'utf-8',
+    );
+    if (\$origin) {
+        \@headers = (
+            \@headers,
+            -access_control_allow_origin  => \$origin,
+            -access_control_allow_headers => 'content-type,X-Requested-With',
+            -access_control_allow_methods => 'GET,POST,OPTIONS',
+            -access_control_allow_credentials => 'true',
+        );
+    }
+    \$self->render->raw( \$q->header(\@headers) );
+    my \$opt      = {};
+    my \$postdata = \$q->param('POSTDATA');
+    if (\$postdata) {
+        \$opt = decode_json(\$postdata);
+    }
+
+    # Validate
+    return \$self->error->output(
+        "Unknown option specification: resource, method, apikey")
+      if !\$opt->{resource} || !\$opt->{method} || !\$opt->{apikey};
+    return \$self->error->output("apikey is incorrect: \$opt->{apikey}")
+      if \$apikey ne \$opt->{apikey};
+
+    # Routing
+    # if ( \$opt->{resource} eq 'sample' ) {
+        # my \$output = \$self->sample->run(\$opt);
+        # \$self->render->all_items_json(\$output);
+        # return;
+    # }
+
+    return \$self->error->output("The resource is specified incorrectly");
+}
+
+1;
+
+__END__
+
+END_TEXT
+
+my $cli_pm = <<"END_TEXT";
+package $class_name\::CLI;
+use strict;
+use warnings;
+use utf8;
+use Encode qw(encode decode);
+use Getopt::Long qw(GetOptionsFromArray);
+use JSON::PP;
+use Pickup;
+sub new    { bless {}, shift; }
+sub error  { Pickup->new->error; }
+sub render { Pickup->new->render; }
+
+sub run {
+    my ( \$self, \@args ) = \@_;
+    my \$resource = shift \@args;
+    my \$method   = shift \@args;
+    return \$self->error->output("Resource specification does not exist")
+      if !\$resource;
+    return \$self->error->output("Method specification does not exist")
+      if !\$method;
+    my \$params = '{}';
+    GetOptionsFromArray( \\\@args, "params=s" => \\\$params, )
+      or die("Error in command line arguments\\n");
+    my \$opt = +{
+        resource => decode( 'UTF-8', \$resource ),
+        method   => decode( 'UTF-8', \$method ),
+        params   => decode_json(\$params),
+    };
+
+    # Routing
+    # if ( \$opt->{resource} eq 'sample' ) {
+        # my \$output = \$self->sample->run(\$opt);
+        # \$self->render->all_items_json(\$output);
+        # return;
+    # }
+    return \$self->error->output("The path is specified incorrectly");
+}
+
+1;
+
+END_TEXT
+
+my $db_pm = <<"END_TEXT";
+package $class_name\::DB;
+use strict;
+use warnings;
+use utf8;
+use SQLite::Simple;
+use Pickup;
+sub new    { bless {}, shift; }
+sub helper { Pickup->new->helper; }
+
+# file
+sub home           { helper->home; }
+sub homedb         { helper->homedb; }
+sub homebackup     { helper->homebackup; }
+sub sql_file_path  { helper->sql_file_path; }
+sub dump_file_path { helper->dump_file_path; }
+sub db_file_path   { helper->db_file_path; }
+
+sub db {
+    my ( \$self, \$args ) = \@_;
+    if ( !\$args ) {
+        \$args = {};
+    }
+    my \$simple = SQLite::Simple->new(
+        {
+            db_file_path   => \$self->db_file_path,
+            sql_file_path  => \$self->sql_file_path,
+            dump_file_path => \$self->dump_file_path,
+            %{\$args},
+        }
+    );
+    return \$simple;
+}
+
+sub valid_single {
+    my ( \$self, \$table, \$params ) = \@_;
+    my \$q_params = +{ %{\$params}, deleted => 0, };
+    return \$self->db->single( \$table, \$q_params );
+}
+
+sub valid_search {
+    my ( \$self, \$table, \$params, \$opt ) = \@_;
+    my \$q_params = +{ %{\$params}, deleted => 0, };
+    return \$self->db->search( \$table, \$q_params, \$opt );
+}
+
+sub safe_insert {
+    my ( \$self, \$table, \$params ) = \@_;
+    my \$dt = \$self->time_stamp;
+    my \$insert_params =
+      +{ %{\$params}, deleted => 0, created_ts => \$dt, modified_ts => \$dt };
+    return \$self->db->insert( \$table, \$insert_params );
+}
+
+sub safe_update {
+    my ( \$self, \$table, \$search_params, \$update_params ) = \@_;
+    my \$dt       = \$self->time_stamp;
+    my \$q_params = +{ %{\$search_params}, deleted     => 0, };
+    my \$u_params = +{ %{\$update_params}, modified_ts => \$dt, };
+    return \$self->db->single_to( \$table, \$q_params )->update(\$u_params);
+}
+
+1;
+
+END_TEXT
+
+init(
+    {
+        dir   => [ 'lib', $class_name ],
+        files => [
+            { name => [ 'lib', $class_name, 'CGI.pm' ], text => $cgi_pm, },
+            { name => [ 'lib', $class_name, 'CLI.pm' ], text => $cli_pm, },
+            { name => [ 'lib', $class_name, 'DB.pm' ],  text => $db_pm, },
+            { name => [ 'lib', "$class_name.pm" ], text => $app_pm, },
+        ],
+    }
+);
+
+# script
+my $script = <<"END_TEXT";
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use utf8;
+use FindBin;
+use lib ( "\$FindBin::RealBin/../lib", "\$FindBin::RealBin/../local/lib/perl5" );
+use $class_name;
+$class_name->new->CLI->run(\@ARGV);
+
+END_TEXT
+
+init(
+    {
+        dir   => ['script'],
+        files => [ { name => [ 'script', "$file_name" ], text => $script, }, ],
+    }
+);
+
+# t
+# app.t
+my $t = <<"END_TEXT";
+use strict;
+use warnings;
+use utf8;
+use Test::More;
+use Data::Dumper;
+use FindBin;
+use lib ( "\$FindBin::RealBin/../lib", "\$FindBin::RealBin/../local/lib/perl5" );
+use Test::Trap qw/:die :output(systemsafe)/;
+use $class_name;
+use Encode qw(encode decode);
+use JSON::PP;
+use File::Temp qw/ tempfile tempdir /;
+my \$temp     = File::Temp->newdir( DIR => \$FindBin::RealBin, CLEANUP => 1, );
+my \$test_dir = \$temp->dirname;
+\$ENV{"ZSEARCH_MODE"}    = 'test';
+\$ENV{"ZSEARCH_TESTDIR"} = \$test_dir;
+\$ENV{"ZSEARCH_DUMP"}    = File::Spec->catfile( \$test_dir, '$file_name.dump' );
+\$ENV{"ZSEARCH_DB"}      = File::Spec->catfile( \$test_dir, '$file_name.db' );
+
+subtest 'File' => sub {
+    my \$script =
+      File::Spec->catfile( \$FindBin::RealBin, '..', 'script', '$file_name' );
+    ok( -x \$script, "script file: \$script" );
+    my \$sql = File::Spec->catfile( \$FindBin::RealBin, '..', '$file_name.sql' );
+    ok( -e \$sql, "sql file: \$sql" );
+};
+
+subtest 'Class and Method' => sub {
+    my \@methods = qw{new};
+    can_ok( new_ok('$class_name\::CGI'), (\@methods) );
+    can_ok( new_ok('$class_name\::CLI'), (\@methods) );
+    can_ok( new_ok('$class_name\::DB'),  (\@methods) );
+};
+
+subtest 'CLI' => sub {
+    my \$obj = new_ok('$class_name\::CLI');
+    trap { \$obj->run() };
+    like( \$trap->stdout, qr/error/, 'error message' );
+    trap { \$obj->run('foo') };
+    like( \$trap->stdout, qr/error/, 'error message' );
+    trap { \$obj->run( 'foo', 'bar' ) };
+    like( \$trap->stdout, qr/error/, 'error message' );
+    # trap { \$obj->run( 'build', 'init' ) };
+    # like( \$trap->stdout, qr/success/, 'success init' );
+};
+
+subtest 'Script' => sub {
+    my \$script =
+      File::Spec->catfile( \$FindBin::RealBin, '..', 'script', '$file_name' );
+    trap { system \$script };
+    like( \$trap->stdout, qr/error/, 'error message' );
+    # trap { system "\$script build init" };
+    # like( \$trap->stdout, qr/success/, 'success init' );
+};
+
+done_testing;
+
+__END__
+
+END_TEXT
+
+init(
+    {
+        dir   => ['t'],
+        files => [ { name => [ 't', "$file_name.t" ], text => $t, }, ],
+    }
+);
+
+# app.sql
+my $sql = <<"END_TEXT";
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user` (                                   -- ユーザー
+    `id`            INTEGER PRIMARY KEY AUTOINCREMENT,  -- ID (例: 5)
+    `loginid`       TEXT,                               -- ログインID名 (例: 'info\@gmail.com')
+    `password`      TEXT,                               -- ログインパスワード (例: 'info')
+    `approved`      INTEGER,                            -- 承認フラグ (例: 0: 承認していない, 1: 承認済み)
+    `deleted`       INTEGER,                            -- 削除フラグ (例: 0: 削除していない, 1: 削除済み)
+    `created_ts`    TEXT,                               -- 登録日時 (例: '2022-06-10 16:52:25')
+    `modified_ts`   TEXT                                -- 修正日時 (例: '2022-06-10 16:52:25')
+);
+
+END_TEXT
+
+init( { files => [ { name => ["$file_name.sql"], text => $sql, }, ], } );
+
+sub init {
+    my $init = shift;
+    if ( exists $init->{dir} ) {
+        my $dir = File::Spec->catfile( $FindBin::RealBin, @{ $init->{dir} } );
+        create_dir($dir);
+    }
+    if ( exists $init->{files} ) {
+        my $files = $init->{files};
+        for my $file ( @{$files} ) {
+            my $name =
+              File::Spec->catfile( $FindBin::RealBin, @{ $file->{name} } );
+            create_file( $name, $file->{text} );
+        }
+    }
+}
+
+sub create_dir {
+    my $dir = shift;
+    return if -d $dir;
+    make_path($dir);
+    return;
+}
+
+sub create_file {
+    my ( $file, $text ) = @_;
+    return if -f $file;
+    my $fh = IO::File->new( $file, ">:encoding(utf8)" );
+    die "not file: $!" if !$fh;
+    $fh->print($text);
+    $fh->close;
+    return;
+}

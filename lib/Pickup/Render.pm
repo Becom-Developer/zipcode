@@ -1,5 +1,5 @@
-package Zsearch::Render;
-use parent 'Zsearch';
+package Pickup::Render;
+use parent 'Pickup::Base';
 use strict;
 use warnings;
 use utf8;

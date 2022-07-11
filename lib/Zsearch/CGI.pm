@@ -1,12 +1,15 @@
 package Zsearch::CGI;
-use parent 'Zsearch';
 use strict;
 use warnings;
 use utf8;
 use CGI;
 use JSON::PP;
-use Zsearch::Render;
-sub render { return Zsearch::Render->new; }
+use Zsearch::SearchSQL;
+use Pickup;
+sub new    { bless {}, shift; }
+sub sql    { Zsearch::SearchSQL->new; }
+sub error  { Pickup->new->error; }
+sub render { Pickup->new->render; }
 
 sub run {
     my ( $self, @args ) = @_;
