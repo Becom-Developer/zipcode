@@ -165,6 +165,16 @@ subtest 'SearchSQL' => sub {
         like( $message, qr/検索件数: 2/, encode( 'UTF-8', $message ) );
     }
 
+    # list
+    {
+        my $test_params = +{ zipcode => '8120041', output => 'list' };
+        my $args        = { method => "like", params => $test_params };
+        my $output      = $obj->run($args);
+        warn $obj->dump($output);
+        # my $message     = $output->{message};
+        # like( $message, qr/検索件数: 2/, encode( 'UTF-8', $message ) );
+    }
+
     # 検索結果がないとき
     {
         my $test_params =

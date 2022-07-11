@@ -43,6 +43,14 @@ sub _like {
     if ( !$rows ) {
         $rows = [];
     }
+    if ( ( exists $params->{output} ) && ( $params->{output} eq 'list' ) ) {
+        for my $row ( @{$rows} ) {
+            $row = {
+                id      => $row->{id},
+                zipcode => $row->{zipcode},
+            };
+        }
+    }
     my $count  = @{$rows};
     my $output = +{
         message => "検索件数: $count",
