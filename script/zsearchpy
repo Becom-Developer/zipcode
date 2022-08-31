@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+
+import sys
+
+
+class Zsearch:
+    def __init__(self):
+        self.CLI = ZsearchCLI()
+
+
+class ZsearchCLI:
+    def run(self, args):
+        print('cli---run---')
+        print(args)
+        return ''
+
+
+def main():
+    Zsearch().CLI.run(sys.argv)
+
+
+if __name__ == '__main__':
+    main()
