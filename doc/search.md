@@ -59,6 +59,21 @@ or
 }
 ```
 
+reCAPTCHA - <https://developers.google.com/recaptcha/docs/verify>
+
+```json
+{
+  "zipcode": "812",
+  "pref": "福岡",
+  "city": "福岡",
+  "town": "吉",
+  "grecaptcha": {
+    "action": "submit",
+    "response": "6LcivDEjAAAAAOxO0_k4VwMJ4_"
+  }
+}
+```
+
 Response parameters
 
 ```json

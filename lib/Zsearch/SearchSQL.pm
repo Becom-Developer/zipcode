@@ -4,6 +4,9 @@ use warnings;
 use utf8;
 use Pickup;
 use Zsearch::DB;
+use HTTP::Tiny;
+use Mojo::UserAgent;
+
 sub new          { bless {}, shift; }
 sub error        { Pickup->new->error; }
 sub render       { Pickup->new->render; }
@@ -30,6 +33,27 @@ sub _like {
     my $params   = $options->{params};
     my $q_params = +{};
     my $cols     = [];
+
+    # reCAPTCHA からの判定の場合
+    warn '-----------------------------1';
+    warn Pickup->new->helper->dump($params);
+    warn '-----------------------------1';
+
+    # print '9999999';
+
+    # http リクエストをおくりたい。
+
+    my $ua  = Mojo::UserAgent->new;
+
+    # my $http = HTTP::Tiny->new();
+
+    # my $url = 'https://www.google.com/recaptcha/api/siteverify';
+    my $url      = 'https://www.becom.co.jp';
+    # my $response = $http->get($url);
+    my $res = $ua->get($url)->result;
+
+    warn Pickup->new->helper->dump($res);
+
     for my $key ( 'zipcode', 'pref', 'city', 'town' ) {
         next if !exists $params->{$key};
         $q_params->{$key} = $params->{$key};
