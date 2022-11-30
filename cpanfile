@@ -4,3 +4,4 @@ requires 'Text::CSV', '2.01';
 requires 'Test::Trap';
 requires 'Mojolicious', '9.23';
 requires 'IO::Socket::SSL';
+requires 'Net::SSLeay';
