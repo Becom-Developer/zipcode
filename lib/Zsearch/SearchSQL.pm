@@ -4,7 +4,6 @@ use warnings;
 use utf8;
 use Pickup;
 use Zsearch::DB;
-
 sub new          { bless {}, shift; }
 sub error        { Pickup->new->error; }
 sub render       { Pickup->new->render; }
