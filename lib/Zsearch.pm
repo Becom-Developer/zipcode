@@ -8,15 +8,17 @@ use Zsearch::CLI;
 use Zsearch::DB;
 use Zsearch::SearchSQL;
 use Pickup;
-sub new    { bless {}, shift; }
-sub build  { Zsearch::Build->new; }
-sub CGI    { Zsearch::CGI->new; }
-sub CLI    { Zsearch::CLI->new; }
-sub DB     { Zsearch::DB->new; }
-sub error  { Pickup->new->error; }
-sub helper { Pickup->new->helper; }
-sub render { Pickup->new->render; }
-sub sql    { Zsearch::SearchSQL->new; }
+use Grecaptcha;
+sub new        { bless {}, shift; }
+sub build      { Zsearch::Build->new; }
+sub CGI        { Zsearch::CGI->new; }
+sub CLI        { Zsearch::CLI->new; }
+sub DB         { Zsearch::DB->new; }
+sub error      { Pickup->new->error; }
+sub helper     { Pickup->new->helper; }
+sub render     { Pickup->new->render; }
+sub sql        { Zsearch::SearchSQL->new; }
+sub grecaptcha { Grecaptcha->new; }
 
 1;
 
