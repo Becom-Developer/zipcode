@@ -6,10 +6,12 @@ use CGI;
 use JSON::PP;
 use Zsearch::SearchSQL;
 use Pickup;
-sub new    { bless {}, shift; }
-sub sql    { Zsearch::SearchSQL->new; }
-sub error  { Pickup->new->error; }
-sub render { Pickup->new->render; }
+use Grecaptcha;
+sub new        { bless {}, shift; }
+sub sql        { Zsearch::SearchSQL->new; }
+sub error      { Pickup->new->error; }
+sub render     { Pickup->new->render; }
+sub grecaptcha { Grecaptcha->new; }
 
 sub run {
     my ( $self, @args ) = @_;
@@ -53,6 +55,11 @@ sub run {
     # Routing
     if ( $opt->{resource} eq 'search' ) {
         my $output = $self->sql->run($opt);
+        $self->render->all_items_json($output);
+        return;
+    }
+    if ( $opt->{resource} eq 'grecaptcha' ) {
+        my $output = $self->grecaptcha->run($opt);
         $self->render->all_items_json($output);
         return;
     }

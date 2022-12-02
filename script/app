@@ -40,6 +40,12 @@ any '/' => sub ($c) {
         $c->render( json => $hash );
         return;
     }
+    if ( $opt->{resource} eq 'grecaptcha' ) {
+        my $hash = $zsearch->grecaptcha->run($opt);
+        $c->app->log->debug( $c->app->dumper($hash) );
+        $c->render( json => $hash );
+        return;
+    }
     my $msg = $zsearch->error->commit("The resource is specified incorrectly");
     $c->render( json => $msg );
     return;
