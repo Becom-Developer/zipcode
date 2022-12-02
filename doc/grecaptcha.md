@@ -70,6 +70,16 @@ Response parameters
 - `google recaptcha api return it as it is.`
 - recaptcha api のレスポンスをそのまま返却
 
+HTTP
+
+```zsh
+curl 'https://zsearch-api.becom.co.jp/' \
+--verbose \
+--header 'Content-Type: application/json' \
+--header 'accept: application/json' \
+--data-binary '{"resource":"grecaptcha","method":"siteverify","apikey":"becom","params":{}}'
+```
+
 CLI
 
 ```zsh

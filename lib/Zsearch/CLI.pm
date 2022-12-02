@@ -7,12 +7,14 @@ use Getopt::Long qw(GetOptionsFromArray);
 use JSON::PP;
 use Zsearch::SearchSQL;
 use Zsearch::Build;
+use Grecaptcha;
 use Pickup;
-sub new    { bless {}, shift; }
-sub sql    { Zsearch::SearchSQL->new; }
-sub build  { Zsearch::Build->new; }
-sub error  { Pickup->new->error; }
-sub render { Pickup->new->render; }
+sub new        { bless {}, shift; }
+sub sql        { Zsearch::SearchSQL->new; }
+sub build      { Zsearch::Build->new; }
+sub grecaptcha { Grecaptcha->new; }
+sub error      { Pickup->new->error; }
+sub render     { Pickup->new->render; }
 
 sub run {
     my ( $self, @args ) = @_;
@@ -45,6 +47,10 @@ sub run {
             return;
         }
         $self->render->all_items_json($output);
+        return;
+    }
+    if ( $opt->{resource} eq 'grecaptcha' ) {
+        $self->render->all_items_json( $self->grecaptcha->run($opt) );
         return;
     }
     return $self->error->output("The path is specified incorrectly");
