@@ -75,12 +75,13 @@ subtest 'SearchSQL' => sub {
           +{ zipcode => '812', pref => '福岡', city => '福岡', town => '吉', };
 
         $test_params->{grecaptcha} = +{
-            action   => "submit",
-            response => "6LcivDEjAAAAAOxO0_k4VwMJ4_",
+            # secret   => "6LcivDEjAAAAAOxO0_k4VwMJ4_",
+            response => "03AEkXODDH6jrUfANvX5rMvt6LkkEI8yonAIk-H56_",
         };
 
         my $args    = { method => "like", params => $test_params };
         my $output  = $obj->run($args);
+        warn Dumper($output);
         my $message = $output->{message};
         like( $message, qr/検索件数: 2/, encode( 'UTF-8', $message ) );
     }

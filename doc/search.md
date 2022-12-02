@@ -68,8 +68,8 @@ reCAPTCHA - <https://developers.google.com/recaptcha/docs/verify>
   "city": "福岡",
   "town": "吉",
   "grecaptcha": {
-    "action": "submit",
-    "response": "6LcivDEjAAAAAOxO0_k4VwMJ4_"
+    "secret": "6LcivDEjAAAAAOxO0_k4VwMJ4_",
+    "response": "03AEkXODDH6jrUfANvX5rMvt6LkkEI8yonAIk-H56_"
   }
 }
 ```

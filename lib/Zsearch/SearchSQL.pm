@@ -31,8 +31,29 @@ sub _recaptcha {
     my ( $self, @args ) = @_;
     my $options = shift @args;
     my $params  = $options->{params};
-    my $url = 'https://www.google.com/recaptcha/api/siteverify';
-    my $res = HTTP::Tiny->new->post_form( $url, $params->{grecaptcha} );
+    my $url     = 'https://www.google.com/recaptcha/api/siteverify';
+
+# API Request
+# URL: https://www.google.com/recaptcha/api/siteverify METHOD: POST
+# POST Parameter Description
+# secret: Required. The shared key between your site and reCAPTCHA.
+# response: Required. The user response token provided by the reCAPTCHA client-side integration on your site.
+# remoteip: Optional. The user's IP address.
+
+    # 暫定でキーを書いておく
+    my $default_secret = '6LcivDEjAAAAAOxO0_k4VwMJ4_rz6ZUnIXQQlRcX';
+
+    # secret 指定がない時は設定済のキーを使う
+    if (exists $params->{grecaptcha}->{secret}) {
+        $default_secret = $params->{grecaptcha}->{secret};
+    }
+
+    my $req_params = +{
+        secret   => $default_secret,
+        response => $params->{grecaptcha}->{response},
+    };
+    warn Pickup->new->helper->dump($req_params);
+    my $res = HTTP::Tiny->new->post_form( $url, $req_params );
     return $res;
 }
 
